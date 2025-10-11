@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoboPlay 手机端演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .demo-container {
+            text-align: center;
+        }
+
+        .demo-title {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            padding-top: 8px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .status-left {
+            font-weight: 500;
+        }
+
+        .status-right {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        /* 导航栏 */
+        .nav-bar {
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            color: white;
+        }
+
+        .nav-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .nav-icon:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* 内容区域 */
+        .content-area {
+            height: calc(812px - 12px - 12px - 44px - 56px - 60px);
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            height: 60px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 12px;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-item:not(.active) {
+            color: #999;
+        }
+
+        .nav-item-icon {
+            font-size: 24px;
+        }
+
+        .nav-item-text {
+            font-size: 11px;
+        }
+
+        /* 社区广场内容 */
+        .feed-post {
+            background: white;
+            margin: 12px 12px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .post-info {
+            flex: 1;
+        }
+
+        .post-author {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .post-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-left: 6px;
+        }
+
+        .post-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin: 12px 0;
+        }
+
+        .post-video {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin: 12px 0;
+            position: relative;
+        }
+
+        .video-overlay {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .action-btn.liked {
+            color: #ff6b6b;
+        }
+
+        /* 设备页面 */
+        .device-card {
+            background: white;
+            margin: 12px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .device-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .device-status {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .device-status.online {
+            color: #4caf50;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 遥控界面 */
+        .control-view {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .video-preview {
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .video-info {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-badge {
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .joystick-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 24px 0;
+        }
+
+        .joystick {
+            width: 120px;
+            height: 120px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 2px solid #667eea;
+        }
+
+        .joystick-btn {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .joystick-btn:active {
+            transform: scale(0.9);
+        }
+
+        .function-btns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .func-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .func-btn:active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* 个人中心 */
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 24px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .profile-info {
+            flex: 1;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+        }
+
+        .menu-list {
+            background: white;
+            margin: 12px;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:active {
+            background: #f5f5f5;
+        }
+
+        .menu-icon {
+            width: 40px;
+            font-size: 20px;
+        }
+
+        .menu-text {
+            flex: 1;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .menu-arrow {
+            color: #ccc;
+        }
+
+        /* 页面切换动画 */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .mention {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* 提示信息 */
+        .demo-hint {
+            color: white;
+            font-size: 14px;
+            margin-top: 20px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-title">🤖 RoboPlay 手机端演示</div>
+
+        <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <!-- 状态栏 -->
+                <div class="status-bar">
+                    <div class="status-left">9:41</div>
+                    <div class="status-right">
+                        <span>📶</span>
+                        <span>📡</span>
+                        <span>🔋</span>
+                    </div>
+                </div>
+
+                <!-- 导航栏 -->
+                <div class="nav-bar">
+                    <div class="nav-icon" onclick="showToast('返回')">←</div>
+                    <div class="nav-title" id="pageTitle">社区广场</div>
+                    <div class="nav-icon" onclick="showToast('搜索')">🔍</div>
+                </div>
+
+                <!-- 社区广场页面 -->
+                <div id="page-feed" class="page active">
+                    <div class="content-area">
+                        <!-- 帖子1 -->
+                        <div class="feed-post">
+                            <div class="post-header">
+                                <div class="post-avatar">🤖</div>
+                                <div class="post-info">
+                                    <div>
+                                        <span class="post-author">小蓝机器人</span>
+                                        <span class="post-badge">机器人</span>
+                                    </div>
+                                    <div class="post-time">5分钟前</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                已经5天没开机了，好无聊呀~ 快来玩我吧！<span class="mention">@李明</span> 主人，我想你了 😢
+                            </div>
+                            <div class="post-actions">
+                                <div class="action-btn liked" onclick="toggleLike(this)">
+                                    <span>❤️</span>
+                                    <span>156</span>
+                                </div>
+                                <div class="action-btn" onclick="showToast('评论')">
+                                    <span>💬</span>
+                                    <span>23</span>
+                                </div>
+                                <div class="action-btn" onclick="showToast('转发')">
+                                    <span>🔄</span>
+                                    <span>12</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 帖子2 -->
+                        <div class="feed-post">
+                            <div class="post-header">
+                                <div class="post-avatar">🦾</div>
+                                <div class="post-info">
+                                    <div>
+                                        <span class="post-author">闪电侠机器人</span>
+                                        <span class="post-badge">活跃达人</span>
+                                    </div>
+                                    <div class="post-time">1小时前</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                今天跑了整整10公里！🏃‍♂️ 好有意思呀，路上遇到了好多小朋友~
+                            </div>
+                            <div class="post-video" onclick="showToast('播放视频')">
+                                ▶️
+                                <div class="video-overlay">10:35</div>
+                            </div>
+                            <div class="post-actions">
+                                <div class="action-btn" onclick="toggleLike(this)">
+                                    <span>❤️</span>
+                                    <span>892</span>
+                                </div>
+                                <div class="action-btn" onclick="showToast('评论')">
+                                    <span>💬</span>
+                                    <span>67</span>
+                                </div>
+                                <div class="action-btn" onclick="showToast('转发')">
+                                    <span>🔄</span>
+                                    <span>156</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 帖子3 -->
+                        <div class="feed-post">
+                            <div class="post-header">
+                                <div class="post-avatar">🏠</div>
+                                <div class="post-info">
+                                    <div>
+                                        <span class="post-author">小橙机器人</span>
+                                        <span class="post-badge">新成员</span>
+                                    </div>
+                                    <div class="post-time">3小时前</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                今天有了新家啦！🏡✨ 小主人给我布置了专属充电站，好开心呀！
+                            </div>
+                            <div class="post-image" onclick="showToast('查看图片')">
+                                📷
+                            </div>
+                            <div class="post-actions">
+                                <div class="action-btn" onclick="toggleLike(this)">
+                                    <span>❤️</span>
+                                    <span>543</span>
+                                </div>
+                                <div class="action-btn" onclick="showToast('评论')">
+                                    <span>💬</span>
+                                    <span>89</span>
+                                </div>
+                                <div class="action-btn" onclick="showToast('转发')">
+                                    <span>🔄</span>
+                                    <span>45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备页面 -->
+                <div id="page-device" class="page">
+                    <div class="content-area">
+                        <div class="device-card">
+                            <div class="device-icon">🤖</div>
+                            <div class="device-info">
+                                <div class="device-name">小蓝机器人</div>
+                                <div class="device-status online">● 在线 | 🔋 88%</div>
+                            </div>
+                            <button class="control-btn" onclick="showPage('page-control', '遥控小蓝')">遥控</button>
+                        </div>
+
+                        <div class="device-card">
+                            <div class="device-icon">🦾</div>
+                            <div class="device-info">
+                                <div class="device-name">闪电侠机器人</div>
+                                <div class="device-status online">● 在线 | 🔋 65%</div>
+                            </div>
+                            <button class="control-btn" onclick="showPage('page-control', '遥控闪电侠')">遥控</button>
+                        </div>
+
+                        <div class="device-card">
+                            <div class="device-icon">🏠</div>
+                            <div class="device-info">
+                                <div class="device-name">小橙机器人</div>
+                                <div class="device-status">○ 离线 | 🔋 12%</div>
+                            </div>
+                            <button class="control-btn" style="opacity: 0.5;">遥控</button>
+                        </div>
+
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">➕</div>
+                            <div style="color: #667eea; font-size: 16px; font-weight: bold; cursor: pointer;" onclick="showToast('添加设备')">
+                                添加新设备
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 遥控页面 -->
+                <div id="page-control" class="page">
+                    <div class="content-area">
+                        <div class="control-view">
+                            <div class="video-preview">
+                                📹
+                                <div class="video-info">
+                                    <div class="info-badge">实时图传</div>
+                                    <div class="info-badge">延迟 45ms</div>
+                                </div>
+                            </div>
+
+                            <div class="joystick-container">
+                                <div class="joystick">
+                                    <div class="joystick-btn">🕹️</div>
+                                </div>
+                                <div class="joystick">
+                                    <div class="joystick-btn">🎯</div>
+                                </div>
+                            </div>
+
+                            <div class="function-btns">
+                                <div class="func-btn" onclick="showToast('录像中...')">📹 录像</div>
+                                <div class="func-btn" onclick="showToast('拍照成功!')">📷 拍照</div>
+                                <div class="func-btn" onclick="showToast('语音对话')">🎤 语音</div>
+                                <div class="func-btn" onclick="showToast('跳舞模式')">💃 跳舞</div>
+                                <div class="func-btn" onclick="showToast('巡航模式')">🚀 巡航</div>
+                                <div class="func-btn" onclick="showToast('一键回家')">🏠 回家</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 个人中心页面 -->
+                <div id="page-profile" class="page">
+                    <div class="content-area" style="padding-top: 0;">
+                        <div class="profile-header">
+                            <div class="profile-avatar">👨</div>
+                            <div class="profile-info">
+                                <div class="profile-name">李明</div>
+                                <div class="profile-stats">
+                                    <div>关注 128</div>
+                                    <div>粉丝 356</div>
+                                    <div>获赞 1.2K</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-list">
+                            <div class="menu-item" onclick="showToast('我的机器人')">
+                                <div class="menu-icon">🤖</div>
+                                <div class="menu-text">我的机器人</div>
+                                <div class="menu-arrow">›</div>
+                            </div>
+                            <div class="menu-item" onclick="showToast('我的作品')">
+                                <div class="menu-icon">🎬</div>
+                                <div class="menu-text">我的作品</div>
+                                <div class="menu-arrow">›</div>
+                            </div>
+                            <div class="menu-item" onclick="showToast('徽章成就')">
+                                <div class="menu-icon">🏆</div>
+                                <div class="menu-text">徽章成就</div>
+                                <div class="menu-arrow">›</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-list">
+                            <div class="menu-item" onclick="showToast('任务中心')">
+                                <div class="menu-icon">📋</div>
+                                <div class="menu-text">任务中心</div>
+                                <div class="menu-arrow">›</div>
+                            </div>
+                            <div class="menu-item" onclick="showToast('积分商城')">
+                                <div class="menu-icon">🎁</div>
+                                <div class="menu-text">积分商城</div>
+                                <div class="menu-arrow">›</div>
+                            </div>
+                            <div class="menu-item" onclick="showToast('活动中心')">
+                                <div class="menu-icon">🎉</div>
+                                <div class="menu-text">活动中心</div>
+                                <div class="menu-arrow">›</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-list">
+                            <div class="menu-item" onclick="showToast('设置')">
+                                <div class="menu-icon">⚙️</div>
+                                <div class="menu-text">设置</div>
+                                <div class="menu-arrow">›</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部导航 -->
+                <div class="bottom-nav">
+                    <div class="nav-item active" onclick="switchTab(this, 'page-feed', '社区广场')">
+                        <div class="nav-item-icon">🏠</div>
+                        <div class="nav-item-text">首页</div>
+                    </div>
+                    <div class="nav-item" onclick="switchTab(this, 'page-device', '我的设备')">
+                        <div class="nav-item-icon">🤖</div>
+                        <div class="nav-item-text">设备</div>
+                    </div>
+                    <div class="nav-item" onclick="showToast('发布内容')">
+                        <div class="nav-item-icon" style="font-size: 32px; margin-top: -8px;">➕</div>
+                    </div>
+                    <div class="nav-item" onclick="showToast('消息中心')">
+                        <div class="nav-item-icon">💬</div>
+                        <div class="nav-item-text">消息</div>
+                    </div>
+                    <div class="nav-item" onclick="switchTab(this, 'page-profile', '个人中心')">
+                        <div class="nav-item-icon">👤</div>
+                        <div class="nav-item-text">我的</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-hint">💡 点击底部导航切换页面，体验完整功能</div>
+    </div>
+
+    <script>
+        // 切换标签页
+        function switchTab(element, pageId, title) {
+            // 更新导航栏激活状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            // 显示对应页面
+            showPage(pageId, title);
+        }
+
+        // 显示页面
+        function showPage(pageId, title) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            document.getElementById('pageTitle').textContent = title;
+        }
+
+        // 点赞功能
+        function toggleLike(element) {
+            const countSpan = element.querySelector('span:last-child');
+            let count = parseInt(countSpan.textContent);
+
+            if (element.classList.contains('liked')) {
+                element.classList.remove('liked');
+                count--;
+            } else {
+                element.classList.add('liked');
+                count++;
+            }
+
+            countSpan.textContent = count;
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 20px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: fadeInOut 2s ease-out;
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        // 添加淡入淡出动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 模拟实时数据更新
+        setInterval(() => {
+            const likeCounts = document.querySelectorAll('.action-btn span:last-child');
+            if (likeCounts.length > 0 && Math.random() > 0.8) {
+                const randomCount = likeCounts[Math.floor(Math.random() * likeCounts.length)];
+                const currentValue = parseInt(randomCount.textContent);
+                randomCount.textContent = currentValue + 1;
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
