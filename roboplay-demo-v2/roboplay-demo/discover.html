@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发现 - RoboPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            padding-bottom: 70px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .points-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Tab切换 */
+        .main-tabs {
+            display: flex;
+            background: white;
+            padding: 0 20px;
+            gap: 35px;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 62px;
+            z-index: 99;
+        }
+
+        .main-tab {
+            padding: 15px 5px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #718096;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .main-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* 活动内容 */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 15px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .see-more {
+            font-size: 13px;
+            color: #667eea;
+            cursor: pointer;
+        }
+
+        .banner {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .banner:hover {
+            transform: translateY(-3px);
+        }
+
+        .banner-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .banner-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .banner-desc {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .activity-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-image {
+            height: 140px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            position: relative;
+        }
+
+        .activity-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .activity-content {
+            padding: 18px;
+        }
+
+        .activity-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .activity-desc {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .activity-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-reward {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .reward-tag {
+            padding: 4px 10px;
+            background: #f7fafc;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #4a5568;
+        }
+
+        /* 任务卡片 */
+        .task-card {
+            background: white;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .task-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 6px;
+        }
+
+        .task-progress {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+
+        .mini-progress {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+
+        .task-btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-claim {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 商城卡片 */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .shop-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .shop-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .shop-image {
+            height: 120px;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+        }
+
+        .shop-content {
+            padding: 12px;
+        }
+
+        .shop-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 6px;
+        }
+
+        .shop-price {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .price-points {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        .price-cash {
+            font-size: 12px;
+            color: #a0aec0;
+            text-decoration: line-through;
+        }
+
+        .shop-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px 20px;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+        }
+
+        .nav-add {
+            position: relative;
+            margin-top: -30px;
+        }
+
+        .add-button {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .add-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* 快捷操作模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .quick-actions-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 25px 25px 0 0;
+            padding: 25px 20px 40px;
+            z-index: 1001;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quick-actions-drawer.show {
+            transform: translateY(0);
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .drawer-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .drawer-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f7fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .drawer-close:hover {
+            background: #e2e8f0;
+            transform: rotate(90deg);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+        }
+
+        .action-item:active .action-icon-wrapper {
+            transform: scale(0.95);
+        }
+
+        .action-label {
+            font-size: 12px;
+            color: #2d3748;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .color-purple {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        }
+
+        .color-pink {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.15) 0%, rgba(245, 87, 108, 0.15) 100%);
+        }
+
+        .color-blue {
+            background: linear-gradient(135deg, rgba(66, 153, 225, 0.15) 0%, rgba(49, 130, 206, 0.15) 100%);
+        }
+
+        .color-green {
+            background: linear-gradient(135deg, rgba(72, 187, 120, 0.15) 0%, rgba(56, 161, 105, 0.15) 100%);
+        }
+
+        .color-orange {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="header-title">发现</div>
+        </div>
+        <div class="points-badge">
+            💰 5,280
+        </div>
+    </div>
+
+    <div class="main-tabs">
+        <div class="main-tab active" data-tab="activities">活动</div>
+        <div class="main-tab" data-tab="tasks">任务</div>
+        <div class="main-tab" data-tab="leaderboard">排行榜</div>
+        <div class="main-tab" data-tab="shop">商城</div>
+    </div>
+
+    <div class="container">
+        <!-- 活动Tab -->
+        <div class="tab-content" id="activities-content">
+            <div class="banner">
+                <div class="banner-tag">🔥 热门活动</div>
+                <div class="banner-title">春季FPV速度挑战赛</div>
+                <div class="banner-desc">展示你的驾驶技术，争夺速度之王称号！</div>
+            </div>
+
+            <div class="section-header">
+                <div class="section-title">🎯 精彩活动</div>
+                <div class="see-more">查看全部 →</div>
+            </div>
+
+            <div class="activity-grid">
+                <div class="activity-card">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        🏎️
+                        <div class="activity-badge">进行中</div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">FPV竞速大挑战</div>
+                        <div class="activity-desc">使用FPV视角记录竞速瞬间，评选速度与技巧兼备的作品</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag">🏆 限定徽章</div>
+                                <div class="reward-tag">💰 1000积分</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        📸
+                        <div class="activity-badge">新活动</div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">智能跟拍创意大赛</div>
+                        <div class="activity-desc">展示机器人智能跟拍功能，记录生活精彩时刻</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag">🎁 实物奖品</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);">
+                        📍
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">城市地标打卡挑战</div>
+                        <div class="activity-desc">带机器人打卡地标，拍摄9张照片解锁专属徽章</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag">🗺️ 地标徽章</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
+                        🎭
+                        <div class="activity-badge">热门</div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">拍同款挑战</div>
+                        <div class="activity-desc">跟随热门作品拍摄同款视频，展现你的创意和风格</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag">✨ 曝光奖励</div>
+                                <div class="reward-tag">💰 500积分</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        👥
+                        <div class="activity-badge">组队</div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">多人协作大作战</div>
+                        <div class="activity-desc">邀请好友一起玩机器人，完成团队任务赢取丰厚奖励</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag">🎁 团队礼包</div>
+                                <div class="reward-tag">🏆 组队徽章</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                        🎪
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">机器人才艺大赛</div>
+                        <div class="activity-desc">展示机器人的特殊技能，舞蹈、绘画、竞速，任你发挥</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag">👑 冠军奖励</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 里程碑事件 -->
+            <div class="section-header" style="margin-top: 30px;">
+                <div class="section-title">🎯 里程碑事件</div>
+                <div class="see-more">查看我的</div>
+            </div>
+
+            <div class="activity-grid">
+                <div class="activity-card" style="border: 2px solid #48bb78;">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                        🏃‍♂️
+                        <div class="activity-badge" style="background: rgba(72, 187, 120, 0.95); color: white;">已完成</div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">首个10公里</div>
+                        <div class="activity-desc">恭喜你的机器人完成累计10公里里程！这是一个重要的里程碑</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag" style="background: #d1fae5; color: #065f46;">🏅 里程徽章</div>
+                                <div class="reward-tag" style="background: #d1fae5; color: #065f46;">💰 200积分</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+                        📸
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">千张照片达成</div>
+                        <div class="activity-desc">拍摄1000张照片，记录生活精彩瞬间</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag">📷 摄影徽章</div>
+                                <div class="reward-tag">进度: 850/1000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-image" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                        ❤️
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">万赞达人</div>
+                        <div class="activity-desc">累计获得10000个赞，成为社区人气王</div>
+                        <div class="activity-footer">
+                            <div class="activity-reward">
+                                <div class="reward-tag">⭐ 人气徽章</div>
+                                <div class="reward-tag">进度: 5800/10000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 任务Tab -->
+        <div class="tab-content" id="tasks-content" style="display: none;">
+            <div class="section-header">
+                <div class="section-title">☀️ 每日任务</div>
+                <div class="see-more">今日进度 3/5</div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">✅</div>
+                <div class="task-info">
+                    <div class="task-title">每日签到</div>
+                    <div class="task-progress">连续签到5天</div>
+                    <div class="activity-reward">
+                        <div class="reward-tag">💰 +20</div>
+                        <div class="reward-tag">🎲 抽奖券x1</div>
+                    </div>
+                </div>
+                <button class="task-btn btn-claim">领取</button>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🎮</div>
+                <div class="task-info">
+                    <div class="task-title">操控机器人10分钟</div>
+                    <div class="task-progress">已完成 15 / 10 分钟</div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <button class="task-btn btn-claim">领取</button>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">💬</div>
+                <div class="task-info">
+                    <div class="task-title">评论3条</div>
+                    <div class="task-progress">与其他玩家互动交流</div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 33%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 4px;">1 / 3</div>
+                </div>
+                <button class="task-btn btn-primary">去完成</button>
+            </div>
+
+            <div class="section-header" style="margin-top: 30px;">
+                <div class="section-title">📅 本周任务</div>
+                <div class="see-more">还剩3天</div>
+            </div>
+
+            <div class="task-card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border: 2px solid #667eea;">
+                <div class="task-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">⭐</div>
+                <div class="task-info">
+                    <div class="task-title">发布3个优质内容</div>
+                    <div class="task-progress">获赞数超过100的内容</div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 66%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 4px;">2 / 3</div>
+                </div>
+                <button class="task-btn btn-primary">继续</button>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🏃</div>
+                <div class="task-info">
+                    <div class="task-title">累计操控1小时</div>
+                    <div class="task-progress">本周已操控 42 / 60 分钟</div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 70%;"></div>
+                    </div>
+                </div>
+                <button class="task-btn btn-primary">继续</button>
+            </div>
+        </div>
+
+        <!-- 排行榜Tab -->
+        <div class="tab-content" id="leaderboard-content" style="display: none;">
+            <!-- Tab切换 -->
+            <div style="display: flex; background: white; border-radius: 12px; padding: 5px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                <div class="leaderboard-tab active" data-board="speed" style="flex: 1; padding: 10px; text-align: center; border-radius: 8px; font-size: 14px; font-weight: 600; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer; transition: all 0.3s;">
+                    竞速榜
+                </div>
+                <div class="leaderboard-tab" data-board="mileage" style="flex: 1; padding: 10px; text-align: center; border-radius: 8px; font-size: 14px; font-weight: 600; color: #718096; cursor: pointer; transition: all 0.3s;">
+                    里程榜
+                </div>
+                <div class="leaderboard-tab" data-board="creator" style="flex: 1; padding: 10px; text-align: center; border-radius: 8px; font-size: 14px; font-weight: 600; color: #718096; cursor: pointer; transition: all 0.3s;">
+                    创作榜
+                </div>
+            </div>
+
+            <!-- 竞速排行榜 -->
+            <div class="leaderboard-board" id="speed-board">
+                <div class="section-header">
+                    <div class="section-title">🏎️ 本周竞速排行</div>
+                    <div class="see-more">每周一刷新</div>
+                </div>
+
+                <!-- 前三名特殊展示 -->
+                <div style="display: flex; align-items: flex-end; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                    <!-- 第二名 -->
+                    <div style="text-align: center; flex: 1;">
+                        <div style="width: 60px; height: 60px; margin: 0 auto 10px; background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">🤖</div>
+                        <div style="font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 4px;">闪电侠MAX</div>
+                        <div style="font-size: 20px; font-weight: 700; color: #667eea;">15.8s</div>
+                        <div style="width: 40px; height: 40px; margin: 10px auto 0; background: #9ca3af; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 700;">2</div>
+                    </div>
+
+                    <!-- 第一名 -->
+                    <div style="text-align: center; flex: 1;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">👑</div>
+                        <div style="width: 70px; height: 70px; margin: 0 auto 10px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; border: 4px solid white; box-shadow: 0 8px 20px rgba(251,191,36,0.4);">🏎️</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #2d3748; margin-bottom: 4px;">速度之王</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">14.2s</div>
+                        <div style="width: 45px; height: 45px; margin: 10px auto 0; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; font-weight: 700;">1</div>
+                    </div>
+
+                    <!-- 第三名 -->
+                    <div style="text-align: center; flex: 1;">
+                        <div style="width: 60px; height: 60px; margin: 0 auto 10px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">🦾</div>
+                        <div style="font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 4px;">极速小飞</div>
+                        <div style="font-size: 20px; font-weight: 700; color: #667eea;">16.3s</div>
+                        <div style="width: 40px; height: 40px; margin: 10px auto 0; background: #f97316; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 700;">3</div>
+                    </div>
+                </div>
+
+                <!-- 4-10名列表 -->
+                <div style="background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                    <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 40px; font-size: 16px; font-weight: 700; color: #718096;">4</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🤖</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 600; color: #2d3748;">机器人小王</div>
+                            <div style="font-size: 12px; color: #a0aec0;">Lv.15 钻石玩家</div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #667eea;">17.1s</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 40px; font-size: 16px; font-weight: 700; color: #718096;">5</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🎨</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 600; color: #2d3748;">小天才</div>
+                            <div style="font-size: 12px; color: #a0aec0;">Lv.12 白银玩家</div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #667eea;">17.8s</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; padding: 12px 0; background: rgba(102, 126, 234, 0.05); margin: 0 -15px; padding-left: 15px; padding-right: 15px; border: 2px solid #667eea; border-left: none; border-right: none;">
+                        <div style="width: 40px; font-size: 16px; font-weight: 700; color: #667eea;">12</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🤖</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 700; color: #667eea;">你的机器人</div>
+                            <div style="font-size: 12px; color: #667eea;">继续加油！</div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #667eea;">19.5s</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 里程排行榜 -->
+            <div class="leaderboard-board" id="mileage-board" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">🏃 累计里程排行</div>
+                    <div class="see-more">总榜单</div>
+                </div>
+
+                <div style="background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                    <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 40px; height: 40px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 700; margin-right: 12px;">1</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🏃</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 600; color: #2d3748;">马拉松王者</div>
+                            <div style="font-size: 12px; color: #a0aec0;">连续运动365天</div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #667eea;">2,345km</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 40px; height: 40px; background: #9ca3af; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 700; margin-right: 12px;">2</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🚀</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 600; color: #2d3748;">探险家号</div>
+                            <div style="font-size: 12px; color: #a0aec0;">走遍全国</div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #667eea;">1,890km</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 40px; height: 40px; background: #f97316; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 700; margin-right: 12px;">3</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">⚡</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 600; color: #2d3748;">闪电侠MAX</div>
+                            <div style="font-size: 12px; color: #a0aec0;">速度与激情</div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #667eea;">1,567km</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; padding: 12px 0; background: rgba(102, 126, 234, 0.05); margin: 0 -15px; padding-left: 15px; padding-right: 15px; border: 2px solid #667eea; border-left: none; border-right: none;">
+                        <div style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #718096; font-weight: 700; margin-right: 12px;">28</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🤖</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 700; color: #667eea;">你的机器人</div>
+                            <div style="font-size: 12px; color: #667eea;">加油冲刺！</div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #667eea;">47.5km</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 创作者排行榜 -->
+            <div class="leaderboard-board" id="creator-board" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">✍️ 本月创作者排行</div>
+                    <div class="see-more">月度榜单</div>
+                </div>
+
+                <div style="background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                    <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 40px; height: 40px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 700; margin-right: 12px;">1</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">👨</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 600; color: #2d3748;">DIY达人老张</div>
+                            <div style="font-size: 12px; color: #a0aec0;">45个作品 · 23.5K赞</div>
+                        </div>
+                        <div style="padding: 4px 10px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 10px; font-size: 11px; font-weight: 600;">优质创作者</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 40px; height: 40px; background: #9ca3af; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 700; margin-right: 12px;">2</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">👩</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 600; color: #2d3748;">温柔妈妈</div>
+                            <div style="font-size: 12px; color: #a0aec0;">38个作品 · 18.9K赞</div>
+                        </div>
+                        <div style="padding: 4px 10px; background: #fbbf24; color: white; border-radius: 10px; font-size: 11px; font-weight: 600;">⭐认证</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 40px; height: 40px; background: #f97316; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: 700; margin-right: 12px;">3</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🎨</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 600; color: #2d3748;">创意设计师</div>
+                            <div style="font-size: 12px; color: #a0aec0;">32个作品 · 16.2K赞</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; padding: 12px 0; background: rgba(102, 126, 234, 0.05); margin: 0 -15px; padding-left: 15px; padding-right: 15px; border: 2px solid #667eea; border-left: none; border-right: none;">
+                        <div style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #718096; font-weight: 700; margin-right: 12px;">18</div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">👦</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 15px; font-weight: 700; color: #667eea;">你（小明）</div>
+                            <div style="font-size: 12px; color: #667eea;">15个作品 · 5.8K赞</div>
+                        </div>
+                        <div style="padding: 4px 10px; background: #667eea; color: white; border-radius: 10px; font-size: 11px; font-weight: 600;">加油</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商城Tab -->
+        <div class="tab-content" id="shop-content" style="display: none;">
+            <div class="section-header">
+                <div class="section-title">🔥 热门兑换</div>
+            </div>
+
+            <div class="shop-grid">
+                <div class="shop-card">
+                    <div class="shop-image">🎨</div>
+                    <div class="shop-content">
+                        <div class="shop-title">专属头像框</div>
+                        <div class="shop-price">
+                            <span class="price-points">💰 500</span>
+                            <span class="shop-tag">限时</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shop-card">
+                    <div class="shop-image">✨</div>
+                    <div class="shop-content">
+                        <div class="shop-title">AI特效包</div>
+                        <div class="shop-price">
+                            <span class="price-points">💰 800</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shop-card">
+                    <div class="shop-image">🎁</div>
+                    <div class="shop-content">
+                        <div class="shop-title">机器人配件</div>
+                        <div class="shop-price">
+                            <span class="price-points">💰 1200</span>
+                            <span class="price-cash">¥99</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shop-card">
+                    <div class="shop-image">🏆</div>
+                    <div class="shop-content">
+                        <div class="shop-title">限定徽章</div>
+                        <div class="shop-price">
+                            <span class="price-points">💰 2000</span>
+                            <span class="shop-tag">稀有</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <div class="section-title">💎 精选商品</div>
+            </div>
+
+            <div class="activity-card">
+                <div class="activity-image" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+                    🤖⚡
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">RoboPlay X2 新品首发</div>
+                    <div class="activity-desc">全新升级版机器人，更强性能，更多玩法</div>
+                    <div class="activity-footer">
+                        <div class="activity-reward">
+                            <div class="reward-tag" style="background: #fee2e2; color: #dc2626;">￥1,299</div>
+                            <div class="reward-tag" style="background: #dbeafe; color: #2563eb;">💰 10,000积分可抵¥100</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="feed.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">首页</div>
+        </a>
+        <a href="discover.html" class="nav-item active">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-label">发现</div>
+        </a>
+        <div class="nav-item nav-add">
+            <div class="add-button" onclick="showQuickActions()">➕</div>
+        </div>
+        <a href="robots.html" class="nav-item">
+            <div class="nav-icon">🤖</div>
+            <div class="nav-label">机器人</div>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">我的</div>
+        </a>
+    </div>
+
+    <!-- 快捷操作模态框 -->
+    <div class="modal-overlay" id="modalOverlay" onclick="hideQuickActions()"></div>
+    <div class="quick-actions-drawer" id="quickActionsDrawer">
+        <div class="drawer-header">
+            <div class="drawer-title">快捷操作</div>
+            <div class="drawer-close" onclick="hideQuickActions()">✕</div>
+        </div>
+        <div class="actions-grid">
+            <a href="bind-device.html" class="action-item">
+                <div class="action-icon-wrapper color-purple">🤖</div>
+                <div class="action-label">绑定设备</div>
+            </a>
+            <div class="action-item" onclick="alert('AI剪辑功能开发中...')">
+                <div class="action-icon-wrapper color-pink">🎬</div>
+                <div class="action-label">AI剪辑</div>
+            </div>
+            <div class="action-item" onclick="alert('运镜模板功能开发中...')">
+                <div class="action-icon-wrapper color-blue">📸</div>
+                <div class="action-label">运镜模板</div>
+            </div>
+            <div class="action-item" onclick="alert('一键成片功能开发中...')">
+                <div class="action-icon-wrapper color-green">✨</div>
+                <div class="action-label">一键成片</div>
+            </div>
+            <div class="action-item" onclick="alert('发布内容功能开发中...')">
+                <div class="action-icon-wrapper color-orange">📝</div>
+                <div class="action-label">发布内容</div>
+            </div>
+            <a href="robot-profile.html" class="action-item">
+                <div class="action-icon-wrapper color-purple">🎮</div>
+                <div class="action-label">操控机器人</div>
+            </a>
+            <div class="action-item" onclick="alert('实时直播功能开发中...')">
+                <div class="action-icon-wrapper color-pink">📡</div>
+                <div class="action-label">实时直播</div>
+            </div>
+            <div class="action-item" onclick="alert('更多功能敬请期待...')">
+                <div class="action-icon-wrapper color-blue">⚙️</div>
+                <div class="action-label">更多</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换
+        document.querySelectorAll('.main-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+
+                // 更新tab状态
+                document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                // 显示对应内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.getElementById(tabName + '-content').style.display = 'block';
+            });
+        });
+
+        // 快捷操作菜单
+        function showQuickActions() {
+            const overlay = document.getElementById('modalOverlay');
+            const drawer = document.getElementById('quickActionsDrawer');
+
+            overlay.classList.add('show');
+            setTimeout(() => {
+                drawer.classList.add('show');
+            }, 10);
+        }
+
+        function hideQuickActions() {
+            const overlay = document.getElementById('modalOverlay');
+            const drawer = document.getElementById('quickActionsDrawer');
+
+            drawer.classList.remove('show');
+            setTimeout(() => {
+                overlay.classList.remove('show');
+            }, 300);
+        }
+
+        // 任务按钮
+        document.querySelectorAll('.task-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.classList.contains('btn-claim')) {
+                    this.textContent = '已领取';
+                    this.style.background = '#48bb78';
+                    this.style.color = 'white';
+                    this.classList.remove('btn-claim');
+
+                    // 更新积分
+                    const badge = document.querySelector('.points-badge');
+                    const current = parseInt(badge.textContent.match(/\d+/)[0]);
+                    badge.textContent = `💰 ${current + 20}`;
+                }
+            });
+        });
+
+        // 排行榜Tab切换
+        document.querySelectorAll('.leaderboard-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const boardType = this.dataset.board;
+
+                // 更新tab状态
+                document.querySelectorAll('.leaderboard-tab').forEach(t => {
+                    t.style.color = '#718096';
+                    t.style.background = 'transparent';
+                    t.classList.remove('active');
+                });
+                this.style.color = 'white';
+                this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                this.classList.add('active');
+
+                // 显示对应排行榜
+                document.querySelectorAll('.leaderboard-board').forEach(board => {
+                    board.style.display = 'none';
+                });
+                document.getElementById(boardType + '-board').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

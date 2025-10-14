@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建内容 - RoboPlay V2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: #f5f7fa; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: white; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { font-size: 24px; color: #667eea; cursor: pointer; text-decoration: none; }
+        .header-title { font-size: 18px; font-weight: 600; color: #2d3748; }
+        .container { flex: 1; max-width: 600px; margin: 0 auto; padding: 30px 20px; width: 100%; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 16px; font-weight: 600; color: #718096; margin-bottom: 15px; padding-left: 5px; }
+        .actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .action-card { background: white; border-radius: 20px; padding: 30px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit; }
+        .action-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .action-icon { width: 70px; height: 70px; margin: 0 auto 15px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+        .icon-purple { background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%); }
+        .icon-pink { background: linear-gradient(135deg, rgba(240,147,251,0.15) 0%, rgba(245,87,108,0.15) 100%); }
+        .icon-blue { background: linear-gradient(135deg, rgba(66,153,225,0.15) 0%, rgba(49,130,206,0.15) 100%); }
+        .icon-green { background: linear-gradient(135deg, rgba(72,187,120,0.15) 0%, rgba(56,161,105,0.15) 100%); }
+        .icon-orange { background: linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.15) 100%); }
+        .icon-red { background: linear-gradient(135deg, rgba(252,129,129,0.15) 0%, rgba(245,101,101,0.15) 100%); }
+        .action-title { font-size: 16px; font-weight: 600; color: #2d3748; margin-bottom: 5px; }
+        .action-desc { font-size: 13px; color: #a0aec0; }
+        .quick-links { display: flex; flex-direction: column; gap: 12px; }
+        .quick-link { background: white; border-radius: 15px; padding: 15px 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit; }
+        .quick-link:hover { transform: translateX(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .quick-link-icon { font-size: 28px; }
+        .quick-link-text { flex: 1; }
+        .quick-link-title { font-size: 15px; font-weight: 600; color: #2d3748; margin-bottom: 3px; }
+        .quick-link-desc { font-size: 12px; color: #a0aec0; }
+        .arrow { font-size: 18px; color: #cbd5e0; }
+        .bottom-nav { background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #a0aec0; cursor: pointer; transition: all 0.3s; padding: 5px 20px; text-decoration: none; }
+        .nav-item.active { color: #667eea; }
+        .nav-icon { font-size: 24px; }
+        .nav-label { font-size: 11px; }
+        .nav-add { position: relative; margin-top: -30px; }
+        .add-button { width: 56px; height: 56px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; box-shadow: 0 8px 20px rgba(102,126,234,0.4); transform: rotate(45deg); }
+
+        /* 操控机器人弹出层 - 横屏全屏模式 */
+        .control-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #1a1a1a;
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .control-overlay.show { display: flex; }
+
+        .control-drawer {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .control-drawer.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .control-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .control-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .control-subtitle {
+            font-size: 15px;
+            color: #a0aec0;
+        }
+
+        .control-options {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .control-option {
+            flex: 1;
+            height: 320px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 30px;
+        }
+        .control-option:active { transform: scale(0.95); }
+        .control-option:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+        .control-option-icon {
+            font-size: 56px;
+            filter: brightness(1.2);
+            margin-bottom: auto;
+        }
+
+        .control-option-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 12px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .option-blue { background: linear-gradient(180deg, #667eea 0%, #5568d3 100%); }
+        .option-orange { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); }
+        .option-orange2 { background: linear-gradient(180deg, #fb923c 0%, #f97316 100%); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="feed.html" class="back-btn">←</a>
+        <div class="header-title">创建内容</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="section-title">🎬 创作工具</div>
+            <div class="actions-grid">
+                <a href="bind-device.html" class="action-card">
+                    <div class="action-icon icon-purple">🤖</div>
+                    <div class="action-title">绑定设备</div>
+                    <div class="action-desc">连接新机器人</div>
+                </a>
+                <a href="#" onclick="showControlOptions(); return false;" class="action-card">
+                    <div class="action-icon icon-blue">🎮</div>
+                    <div class="action-title">操控机器人</div>
+                    <div class="action-desc">远程控制拍摄</div>
+                </a>
+                <a href="edit.html" class="action-card">
+                    <div class="action-icon icon-pink">✂️</div>
+                    <div class="action-title">剪辑</div>
+                    <div class="action-desc">AI一键成片</div>
+                </a>
+                <a href="#" onclick="alert('更多功能开发中...'); return false;" class="action-card">
+                    <div class="action-icon icon-green">⚡</div>
+                    <div class="action-title">更多</div>
+                    <div class="action-desc">探索功能</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">⚡ 快捷操作</div>
+            <div class="quick-links">
+                <a href="album.html" class="quick-link">
+                    <div class="quick-link-icon">📸</div>
+                    <div class="quick-link-text">
+                        <div class="quick-link-title">我的相册</div>
+                        <div class="quick-link-desc">查看拍摄的照片和视频</div>
+                    </div>
+                    <div class="arrow">›</div>
+                </a>
+                <a href="academy.html" class="quick-link">
+                    <div class="quick-link-icon">🎓</div>
+                    <div class="quick-link-text">
+                        <div class="quick-link-title">学堂</div>
+                        <div class="quick-link-desc">学习拍摄技巧和模板</div>
+                    </div>
+                    <div class="arrow">›</div>
+                </a>
+                <a href="activities.html" class="quick-link">
+                    <div class="quick-link-icon">🎯</div>
+                    <div class="quick-link-text">
+                        <div class="quick-link-title">参加活动</div>
+                        <div class="quick-link-desc">加入社区挑战赛</div>
+                    </div>
+                    <div class="arrow">›</div>
+                </a>
+                <a href="tasks.html" class="quick-link">
+                    <div class="quick-link-icon">✅</div>
+                    <div class="quick-link-text">
+                        <div class="quick-link-title">完成任务</div>
+                        <div class="quick-link-desc">赚取积分和奖励</div>
+                    </div>
+                    <div class="arrow">›</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操控机器人弹出层 -->
+    <div class="control-overlay" id="controlOverlay" onclick="hideControlOptions()">
+        <div class="control-drawer" id="controlDrawer" onclick="event.stopPropagation()">
+            <div class="control-header">
+                <div class="control-title">选择操控模式</div>
+                <div class="control-subtitle">选择适合你的拍摄方式</div>
+            </div>
+            <div class="control-options">
+                <div class="control-option option-blue" onclick="startControl('blind')">
+                    <div class="control-option-icon">📹</div>
+                    <div class="control-option-title">盲甩</div>
+                </div>
+                <div class="control-option option-orange" onclick="startControl('smart')">
+                    <div class="control-option-icon">🎬</div>
+                    <div class="control-option-title">智能舞片</div>
+                </div>
+                <div class="control-option option-orange2" onclick="startControl('fpv')">
+                    <div class="control-option-icon">🎮</div>
+                    <div class="control-option-title">FPV路径</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="feed.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">首页</div>
+        </a>
+        <a href="discover.html" class="nav-item">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-label">发现</div>
+        </a>
+        <a href="publish.html" class="nav-item nav-add active">
+            <div class="add-button">➕</div>
+        </a>
+        <a href="robots.html" class="nav-item">
+            <div class="nav-icon">🤖</div>
+            <div class="nav-label">机器人</div>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">我的</div>
+        </a>
+    </div>
+
+    <script>
+        function showControlOptions() {
+            const overlay = document.getElementById('controlOverlay');
+            const drawer = document.getElementById('controlDrawer');
+
+            overlay.classList.add('show');
+            setTimeout(() => {
+                drawer.classList.add('show');
+            }, 50);
+        }
+
+        function hideControlOptions() {
+            const overlay = document.getElementById('controlOverlay');
+            const drawer = document.getElementById('controlDrawer');
+
+            drawer.classList.remove('show');
+            setTimeout(() => {
+                overlay.classList.remove('show');
+            }, 300);
+        }
+
+        function startControl(mode) {
+            let modeName = '';
+            switch(mode) {
+                case 'blind': modeName = '盲甩'; break;
+                case 'smart': modeName = '智能舞片'; break;
+                case 'fpv': modeName = 'FPV路径'; break;
+            }
+            alert('🎮 正在启动' + modeName + '模式...\n准备开始操控！');
+            hideControlOptions();
+        }
+    </script>
+</body>
+</html>

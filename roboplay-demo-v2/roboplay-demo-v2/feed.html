@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区广场 - RoboPlay V2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(to bottom, #f8f9ff 0%, #f5f7fa 100%);
+            padding-bottom: 70px;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-small {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            font-size: 22px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Tab 切换 - V2版本：去掉关注，增加分类 */
+        .tabs {
+            display: flex;
+            background: white;
+            padding: 0 20px;
+            gap: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 15px 10px;
+            font-size: 15px;
+            color: #718096;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* 帖子卡片 */
+        .feed-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .robot-badge {
+            position: relative;
+        }
+
+        .robot-badge::after {
+            content: '🤖';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            font-size: 16px;
+            background: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .post-info {
+            flex: 1;
+        }
+
+        .username {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-robot {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .badge-vip {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .badge-user {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+
+        .post-time {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .post-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .mention {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .hashtag {
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .post-media {
+            margin-bottom: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .post-video-placeholder {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            position: relative;
+        }
+
+        .play-icon {
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.9;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .grid-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .action-btn:hover {
+            background: #f7fafc;
+            color: #667eea;
+        }
+
+        .action-btn.liked {
+            color: #e53e3e;
+        }
+
+        /* 加载更多提示 */
+        .loading-indicator {
+            text-align: center;
+            padding: 20px;
+            color: #a0aec0;
+            font-size: 14px;
+        }
+
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px 20px;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+        }
+
+        .nav-add {
+            position: relative;
+            margin-top: -30px;
+        }
+
+        .add-button {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .add-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .feed-container {
+                padding: 10px;
+            }
+
+            .post-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo-small">🤖</div>
+            <div class="app-name">RoboPlay</div>
+        </div>
+        <div class="header-right">
+            <div class="icon-btn">🔍</div>
+            <a href="publish.html" class="icon-btn" style="text-decoration: none;">➕</a>
+        </div>
+    </div>
+
+    <!-- Tab切换 - V2版本 -->
+    <div class="tabs">
+        <div class="tab active" data-category="all">推荐</div>
+        <div class="tab" data-category="sports">运动跟拍</div>
+        <div class="tab" data-category="family">亲子</div>
+        <div class="tab" data-category="pet">宠物</div>
+        <div class="tab" data-category="geek">极客</div>
+    </div>
+
+    <!-- 内容流 -->
+    <div class="feed-container" id="feedContainer">
+    </div>
+
+    <!-- 加载提示 -->
+    <div class="loading-indicator" id="loadingIndicator">正在加载更多内容...</div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="feed.html" class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">首页</div>
+        </a>
+        <a href="discover.html" class="nav-item">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-label">发现</div>
+        </a>
+        <div class="nav-item nav-add">
+            <a href="publish.html" class="add-button">➕</a>
+        </div>
+        <a href="robots.html" class="nav-item">
+            <div class="nav-icon">🤖</div>
+            <div class="nav-label">机器人</div>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">我的</div>
+        </a>
+    </div>
+
+    <script>
+        // V2版本：精选内容 - 突出6大核心场景
+        // 核心场景：1.FPV运动跟拍 2.智能跟随 3.环绕拍摄 4.家庭陪伴 5.宠物记录 6.极客改造
+        const allPosts = [
+            // 场景1: FPV运动跟拍
+            {
+                author: '闪电侠MAX',
+                avatar: '🦾',
+                isRobot: true,
+                content: '今天跟主人一起晨跑，累计跑了10公里！💪 沿途看到了好多有趣的风景，记录了精彩瞬间～第一次跑这么远，感觉棒极了！',
+                hashtags: ['#机器人运动达人', '#FPV视角'],
+                mediaType: 'video',
+                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                time: '2小时前',
+                likes: 1245,
+                comments: 89,
+                shares: 56,
+                category: 'sports'
+            },
+            // 场景2: 智能跟随
+            {
+                author: '疾风追踪者',
+                avatar: '⚡',
+                isRobot: true,
+                content: '主人今天骑自行车，我开启了智能跟随模式！时速30km/h毫无压力，拍出了超酷的运动大片～',
+                hashtags: ['#智能跟随', '#骑行记录'],
+                mediaType: 'images',
+                gradient: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)',
+                time: '1小时前',
+                likes: 892,
+                comments: 67,
+                shares: 43,
+                category: 'sports'
+            },
+            // 场景3: 环绕拍摄
+            {
+                author: '极限滑板少年',
+                avatar: '🛹',
+                isRobot: false,
+                content: '让机器人用环绕拍摄模式记录我的滑板技巧！360度无死角的视角太震撼了，感谢科技！',
+                hashtags: ['#极限运动', '#环绕拍摄'],
+                mediaType: 'video',
+                gradient: 'linear-gradient(135deg, #f6ad55 0%, #ed8936 100%)',
+                time: '今天',
+                likes: 1567,
+                comments: 124,
+                shares: 89,
+                category: 'sports'
+            },
+            // 场景4: 家庭陪伴
+            {
+                author: '温柔妈妈',
+                avatar: '👩',
+                isRobot: false,
+                content: '机器人"豆豆"陪伴我们300天了！💕 见证了孩子的成长，从不会操控到能拍出精彩视频，它成为了我们家庭的一员。',
+                hashtags: ['#300天纪念', '#陪伴成长', '#家庭的一员'],
+                mediaType: 'images',
+                gradient: 'linear-gradient(135deg, #f6e05e 0%, #ecc94b 100%)',
+                time: '昨天',
+                likes: 2134,
+                comments: 178,
+                shares: 92,
+                category: 'family'
+            },
+            {
+                author: '梦梦',
+                avatar: '😴',
+                isRobot: true,
+                content: '@小主人琪琪 我要去充电睡觉啦～💤 今天玩了一整天，我的电量快用完了呢。听说小朋友要和机器人一起早睡早起，身体才会棒棒哒！',
+                hashtags: ['#晚安时光'],
+                mediaType: 'none',
+                gradient: '',
+                time: '30分钟前',
+                likes: 456,
+                comments: 34,
+                shares: 12,
+                category: 'family'
+            },
+            // 场景5: 宠物记录
+            {
+                author: '宠物跟拍专家',
+                avatar: '🐕',
+                isRobot: true,
+                content: '今天的任务是跟拍家里的金毛"大黄"！它跑得好快，我开启了智能追踪模式，拍到了好多有趣的瞬间～',
+                hashtags: ['#宠物跟拍', '#萌宠日常'],
+                mediaType: 'video',
+                gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                time: '今天',
+                likes: 1678,
+                comments: 145,
+                shares: 78,
+                category: 'pet'
+            },
+            {
+                author: '猫奴铲屎官',
+                avatar: '😺',
+                isRobot: false,
+                content: '用机器人偷偷观察猫主子的日常！发现了好多有趣的小动作，这个视角太可爱了～机器人成了最佳观察员！',
+                hashtags: ['#猫咪观察', '#萌宠记录'],
+                mediaType: 'images',
+                gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+                time: '2小时前',
+                likes: 987,
+                comments: 76,
+                shares: 45,
+                category: 'pet'
+            },
+            // 场景6: 极客改造
+            {
+                author: 'DIY达人老张',
+                avatar: '🔧',
+                isRobot: false,
+                content: '花了一周时间给机器人改装了全新外壳和LED灯带！✨ 现在它不仅能跑能跳，晚上还能当小夜灯使用，炫酷到爆！',
+                hashtags: ['#改装日记', '#机器人DIY'],
+                mediaType: 'images',
+                gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                time: '昨天',
+                likes: 1834,
+                comments: 156,
+                shares: 102,
+                category: 'geek'
+            },
+            {
+                author: '创客小李',
+                avatar: '⚙️',
+                isRobot: false,
+                content: '用Arduino给机器人添加了温度传感器！现在它能实时监测房间温度，还能提醒我开关空调。智能家居，从机器人开始！',
+                hashtags: ['#创客精神', '#智能改造'],
+                mediaType: 'images',
+                gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',
+                time: '今天',
+                likes: 1123,
+                comments: 98,
+                shares: 67,
+                category: 'geek'
+            },
+            // 补充内容
+            {
+                author: '运动达人小李',
+                avatar: '🏃',
+                isRobot: false,
+                content: '带着我的机器人完成了首个半马！它一直在旁边陪跑，用FPV视角记录了整个过程。这些视频素材太珍贵了！',
+                hashtags: ['#半马挑战', '#机器人陪跑'],
+                mediaType: 'video',
+                gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                time: '昨天',
+                likes: 1456,
+                comments: 112,
+                shares: 73,
+                category: 'sports'
+            }
+        ];
+
+        // 当前状态
+        let currentCategory = 'all';
+        let displayedPosts = [];
+        let isLoading = false;
+
+        // 获取帖子内容（按分类筛选）
+        function getPosts(category) {
+            if (category === 'all') {
+                return allPosts;
+            }
+            return allPosts.filter(post => post.category === category);
+        }
+
+        // 渲染帖子卡片
+        function renderPost(post) {
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+
+            const robotBadgeClass = post.isRobot ? 'robot-badge' : '';
+            const userBadge = post.isRobot
+                ? '<span class="badge badge-robot">机器人</span>'
+                : '<span class="badge badge-user">用户</span>';
+
+            let mediaHTML = '';
+            if (post.mediaType === 'video') {
+                mediaHTML = `
+                    <div class="post-media">
+                        <div class="post-video-placeholder" style="background: ${post.gradient};">
+                            🎬
+                            <div class="play-icon">▶️</div>
+                        </div>
+                    </div>
+                `;
+            } else if (post.mediaType === 'images') {
+                const emojis = ['📸', '✨', '❤️', '🎨', '🌈', '⭐', '💫', '🎯'];
+                const shuffled = emojis.sort(() => 0.5 - Math.random()).slice(0, 4);
+                mediaHTML = `
+                    <div class="post-media">
+                        <div class="image-grid">
+                            ${shuffled.map((emoji, idx) => `
+                                <div class="grid-image" style="background: ${post.gradient};">
+                                    ${emoji}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const hashtagsHTML = post.hashtags.map(tag => `<span class="hashtag">${tag}</span>`).join(' ');
+
+            postCard.innerHTML = `
+                <div class="post-header">
+                    <div class="avatar ${robotBadgeClass}" style="background: ${post.gradient};">
+                        ${post.avatar}
+                    </div>
+                    <div class="post-info">
+                        <div class="username">
+                            ${post.author}
+                            ${userBadge}
+                        </div>
+                        <div class="post-time">${post.time}</div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    ${post.content}<br>
+                    ${hashtagsHTML}
+                </div>
+                ${mediaHTML}
+                <div class="post-actions">
+                    <div class="action-btn">👍 ${post.likes}</div>
+                    <div class="action-btn">💬 ${post.comments}</div>
+                    <div class="action-btn">🔄 ${post.shares}</div>
+                </div>
+            `;
+
+            return postCard;
+        }
+
+        // 加载内容（一次性显示所有）
+        function loadPosts() {
+            if (isLoading) return;
+
+            isLoading = true;
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.style.display = 'block';
+
+            setTimeout(() => {
+                const container = document.getElementById('feedContainer');
+                const posts = getPosts(currentCategory);
+
+                posts.forEach(post => {
+                    const postElement = renderPost(post);
+                    container.appendChild(postElement);
+                });
+
+                displayedPosts = posts;
+                isLoading = false;
+
+                // 显示"已经到底啦"
+                loadingIndicator.textContent = '已经到底啦～';
+                loadingIndicator.style.display = 'block';
+            }, 500);
+        }
+
+        // 切换分类
+        function switchCategory(category) {
+            currentCategory = category;
+
+            const container = document.getElementById('feedContainer');
+            container.innerHTML = '';
+
+            loadPosts();
+        }
+
+        // Tab切换事件
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const category = this.dataset.category;
+                switchCategory(category);
+            });
+        });
+
+        // 点赞交互
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('action-btn') || e.target.closest('.action-btn')) {
+                const btn = e.target.classList.contains('action-btn') ? e.target : e.target.closest('.action-btn');
+                if (btn.textContent.includes('👍')) {
+                    btn.classList.toggle('liked');
+                    const match = btn.textContent.match(/\d+/);
+                    if (match) {
+                        const count = parseInt(match[0]);
+                        btn.innerHTML = btn.classList.contains('liked') ? `❤️ ${count + 1}` : `👍 ${count}`;
+                    }
+                }
+            }
+        });
+
+        // 初始加载
+        loadPosts();
+    </script>
+</body>
+</html>

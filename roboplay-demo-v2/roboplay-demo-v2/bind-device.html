@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绑定机器人 - RoboPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 25px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .icon {
+            font-size: 70px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .step.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .methods {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            border-radius: 18px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .method-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .method-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .method-icon {
+            font-size: 32px;
+        }
+
+        .method-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .method-desc {
+            font-size: 14px;
+            color: #718096;
+            line-height: 1.5;
+            padding-left: 47px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .scan-area {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            border-radius: 18px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 3px dashed #cbd5e0;
+        }
+
+        .scan-icon {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+
+        .scan-text {
+            font-size: 15px;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+
+        .scan-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scan-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .brand-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .brand-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .brand-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+        }
+
+        .brand-card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .brand-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .brand-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5);
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tips {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .tips-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tips-list {
+            font-size: 13px;
+            color: #78350f;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+
+        .success-animation {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            font-size: 100px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 20px 0 10px;
+        }
+
+        .success-desc {
+            font-size: 15px;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        .robot-preview {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .robot-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .robot-avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .robot-details h3 {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 6px;
+        }
+
+        .robot-details p {
+            font-size: 14px;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div id="step1" class="step-content">
+                <div class="header">
+                    <div class="icon">🤖</div>
+                    <h1>绑定你的机器人</h1>
+                    <p class="subtitle">选择一种方式来激活你的机器人伙伴</p>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step active"></div>
+                    <div class="step"></div>
+                    <div class="step"></div>
+                </div>
+
+                <div class="methods">
+                    <div class="method-card" onclick="selectMethod('scan')">
+                        <div class="method-header">
+                            <div class="method-icon">📱</div>
+                            <div class="method-title">扫描二维码</div>
+                        </div>
+                        <div class="method-desc">
+                            打开手机相机，扫描机器人包装盒上的二维码
+                        </div>
+                    </div>
+
+                    <div class="method-card" onclick="selectMethod('sn')">
+                        <div class="method-header">
+                            <div class="method-icon">🔢</div>
+                            <div class="method-title">输入序列号</div>
+                        </div>
+                        <div class="method-desc">
+                            手动输入机器人底部的SN序列号
+                        </div>
+                    </div>
+
+                    <div class="method-card" onclick="selectMethod('other')">
+                        <div class="method-header">
+                            <div class="method-icon">🔗</div>
+                            <div class="method-title">第三方设备</div>
+                        </div>
+                        <div class="method-desc">
+                            绑定其他品牌的机器人设备
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step2-scan" class="step-content" style="display: none;">
+                <div class="header">
+                    <div class="icon">📸</div>
+                    <h1>扫描二维码</h1>
+                    <p class="subtitle">将相机对准机器人包装盒上的二维码</p>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step"></div>
+                    <div class="step active"></div>
+                    <div class="step"></div>
+                </div>
+
+                <div class="scan-area">
+                    <div class="scan-icon">📷</div>
+                    <div class="scan-text">点击下方按钮启动相机扫描</div>
+                    <button class="scan-btn" onclick="simulateScan()">开始扫描</button>
+                </div>
+
+                <div class="tips">
+                    <div class="tips-title">💡 提示</div>
+                    <ul class="tips-list">
+                        <li>确保二维码清晰可见</li>
+                        <li>保持手机稳定对准二维码</li>
+                        <li>在光线充足的环境下扫描</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="step2-sn" class="step-content" style="display: none;">
+                <div class="header">
+                    <div class="icon">🔢</div>
+                    <h1>输入序列号</h1>
+                    <p class="subtitle">请输入机器人底部的12位SN码</p>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step"></div>
+                    <div class="step active"></div>
+                    <div class="step"></div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">序列号 (SN)</label>
+                    <input type="text" class="input-field" placeholder="例如：RP2024123456" maxlength="12">
+                </div>
+
+                <button class="action-button" onclick="simulateActivate()">激活机器人</button>
+
+                <div class="tips">
+                    <div class="tips-title">💡 在哪里找到序列号？</div>
+                    <ul class="tips-list">
+                        <li>机器人底部标签上</li>
+                        <li>包装盒侧面贴纸</li>
+                        <li>产品说明书首页</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="step2-other" class="step-content" style="display: none;">
+                <div class="header">
+                    <div class="icon">🤝</div>
+                    <h1>第三方设备</h1>
+                    <p class="subtitle">选择你的机器人品牌</p>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step"></div>
+                    <div class="step active"></div>
+                    <div class="step"></div>
+                </div>
+
+                <div class="brand-grid">
+                    <div class="brand-card" onclick="selectBrand(this)">
+                        <div class="brand-icon">🤖</div>
+                        <div class="brand-name">RoboPlay</div>
+                    </div>
+                    <div class="brand-card" onclick="selectBrand(this)">
+                        <div class="brand-icon">🦾</div>
+                        <div class="brand-name">品牌A</div>
+                    </div>
+                    <div class="brand-card" onclick="selectBrand(this)">
+                        <div class="brand-icon">🚀</div>
+                        <div class="brand-name">品牌B</div>
+                    </div>
+                    <div class="brand-card" onclick="selectBrand(this)">
+                        <div class="brand-icon">⚡</div>
+                        <div class="brand-name">品牌C</div>
+                    </div>
+                    <div class="brand-card" onclick="selectBrand(this)">
+                        <div class="brand-icon">🌟</div>
+                        <div class="brand-name">品牌D</div>
+                    </div>
+                    <div class="brand-card" onclick="selectBrand(this)">
+                        <div class="brand-icon">➕</div>
+                        <div class="brand-name">其他</div>
+                    </div>
+                </div>
+
+                <button class="action-button" onclick="simulateActivate()">继续</button>
+            </div>
+
+            <div id="step3" class="step-content" style="display: none;">
+                <div class="success-animation">
+                    <div class="success-icon">🎉</div>
+                    <h2 class="success-title">激活成功！</h2>
+                    <p class="success-desc">欢迎你的新伙伴加入RoboPlay社区</p>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step"></div>
+                    <div class="step"></div>
+                    <div class="step active"></div>
+                </div>
+
+                <div class="robot-preview">
+                    <div class="robot-info">
+                        <div class="robot-avatar">🤖</div>
+                        <div class="robot-details">
+                            <h3>小酷机器人</h3>
+                            <p>型号：RoboPlay X1 • SN: RP2024***456</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">给它起个名字吧</label>
+                    <input type="text" class="input-field" placeholder="例如：小酷、闪电侠..." value="小酷">
+                </div>
+
+                <button class="action-button" onclick="window.location.href='feed.html'">开始探索社区</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function selectMethod(method) {
+            document.getElementById('step1').style.display = 'none';
+
+            if (method === 'scan') {
+                document.getElementById('step2-scan').style.display = 'block';
+            } else if (method === 'sn') {
+                document.getElementById('step2-sn').style.display = 'block';
+            } else {
+                document.getElementById('step2-other').style.display = 'block';
+            }
+        }
+
+        function simulateScan() {
+            // 模拟扫描过程
+            const btn = event.target;
+            btn.textContent = '扫描中...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                simulateActivate();
+            }, 2000);
+        }
+
+        function simulateActivate() {
+            // 隐藏所有step2
+            document.getElementById('step2-scan').style.display = 'none';
+            document.getElementById('step2-sn').style.display = 'none';
+            document.getElementById('step2-other').style.display = 'none';
+
+            // 显示成功页面
+            document.getElementById('step3').style.display = 'block';
+        }
+
+        function selectBrand(element) {
+            document.querySelectorAll('.brand-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+    </script>
+</body>
+</html>

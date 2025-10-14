@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务中心 - RoboPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            padding-bottom: 70px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .points-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .daily-progress {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .progress-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* 任务分类 */
+        .task-section {
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-count {
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        /* 任务卡片 */
+        .task-card {
+            background: white;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 6px;
+        }
+
+        .task-progress {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+
+        .task-reward {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .reward-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #f7fafc;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #4a5568;
+        }
+
+        .task-action {
+            flex-shrink: 0;
+        }
+
+        .task-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .task-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .task-btn.primary:hover {
+            transform: scale(1.05);
+        }
+
+        .task-btn.completed {
+            background: #48bb78;
+            color: white;
+        }
+
+        .task-btn.claim {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .task-btn.disabled {
+            background: #e2e8f0;
+            color: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        /* 进度条 */
+        .mini-progress {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px 20px;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+        }
+
+        /* 特殊任务卡片 */
+        .special-task {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .special-task::before {
+            content: '⭐';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 80px;
+            opacity: 0.1;
+        }
+
+        .special-task .task-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .special-task .task-title,
+        .special-task .task-progress {
+            color: white;
+        }
+
+        .special-task .reward-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .special-task .task-btn {
+            background: white;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="header-title">任务中心 📋</div>
+            <div class="points-display">
+                💰 5,280 积分
+            </div>
+        </div>
+        <div class="daily-progress">
+            <div class="progress-title">今日活跃度</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: 60%;"></div>
+            </div>
+            <div class="progress-text">
+                <span>完成 3 / 5 个每日任务</span>
+                <span>60%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- 新手任务 -->
+        <div class="task-section">
+            <div class="section-header">
+                <div class="section-title">
+                    🎯 新手任务
+                </div>
+                <div class="section-count">1 / 5</div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">✅</div>
+                <div class="task-info">
+                    <div class="task-title">完善个人资料</div>
+                    <div class="task-progress">设置头像、昵称和个性签名</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +50</div>
+                        <div class="reward-badge">🏅 新人徽章</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn completed">已完成</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🤖</div>
+                <div class="task-info">
+                    <div class="task-title">激活第一台机器人</div>
+                    <div class="task-progress">扫描二维码或输入SN码激活设备</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +100</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">去完成</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">📝</div>
+                <div class="task-info">
+                    <div class="task-title">发布第一条内容</div>
+                    <div class="task-progress">分享你与机器人的精彩瞬间</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +80</div>
+                        <div class="reward-badge">🎬 创作者认证</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">去完成</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">👥</div>
+                <div class="task-info">
+                    <div class="task-title">关注5个用户</div>
+                    <div class="task-progress">发现有趣的创作者</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +30</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 60%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 5px;">3 / 5</div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">继续</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 每日任务 -->
+        <div class="task-section">
+            <div class="section-header">
+                <div class="section-title">
+                    ☀️ 每日任务
+                </div>
+                <div class="section-count">3 / 5 已完成</div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">✅</div>
+                <div class="task-info">
+                    <div class="task-title">每日签到</div>
+                    <div class="task-progress">连续签到5天，额外奖励翻倍</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +20</div>
+                        <div class="reward-badge">🎲 抽奖券 x1</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn completed">已签到</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">✅</div>
+                <div class="task-info">
+                    <div class="task-title">操控机器人10分钟</div>
+                    <div class="task-progress">已完成 15 / 10 分钟</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +30</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn claim">领取</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">✅</div>
+                <div class="task-info">
+                    <div class="task-title">点赞5个内容</div>
+                    <div class="task-progress">为优质内容点赞</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +10</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn claim">领取</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">💬</div>
+                <div class="task-info">
+                    <div class="task-title">评论3条</div>
+                    <div class="task-progress">与其他玩家互动交流</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +15</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 33%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 5px;">1 / 3</div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">去完成</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🎬</div>
+                <div class="task-info">
+                    <div class="task-title">发布1条内容</div>
+                    <div class="task-progress">分享今天的精彩时刻</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +50</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">去完成</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 周任务 -->
+        <div class="task-section">
+            <div class="section-header">
+                <div class="section-title">
+                    📅 本周任务
+                </div>
+                <div class="section-count">还剩3天</div>
+            </div>
+
+            <div class="task-card special-task">
+                <div class="task-icon">⭐</div>
+                <div class="task-info">
+                    <div class="task-title">发布3个优质内容</div>
+                    <div class="task-progress">获赞数超过100的内容</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +500</div>
+                        <div class="reward-badge">🏆 限定徽章</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 66%; background: white;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 5px;">2 / 3</div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn">继续</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🏃</div>
+                <div class="task-info">
+                    <div class="task-title">累计操控1小时</div>
+                    <div class="task-progress">本周已操控 42 / 60 分钟</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +200</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 70%;"></div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">继续</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🎯</div>
+                <div class="task-info">
+                    <div class="task-title">参与1次活动</div>
+                    <div class="task-progress">前往活动中心参加任意活动</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💰 +300</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">去参加</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 地标打卡任务 -->
+        <div class="task-section">
+            <div class="section-header">
+                <div class="section-title">
+                    📍 地标打卡
+                </div>
+                <div class="section-count">挑战中</div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🗼</div>
+                <div class="task-info">
+                    <div class="task-title">东方明珠打卡挑战</div>
+                    <div class="task-progress">在地标拍摄9张不同角度的照片</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">🗺️ 上海地标徽章</div>
+                        <div class="reward-badge">💰 +800</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 44%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 5px;">4 / 9 张照片</div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">继续拍摄</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🏛️</div>
+                <div class="task-info">
+                    <div class="task-title">故宫博物院打卡</div>
+                    <div class="task-progress">解锁历史文化地标徽章</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">🏛️ 北京地标徽章</div>
+                        <div class="reward-badge">💰 +800</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">开始打卡</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">👥</div>
+                <div class="task-info">
+                    <div class="task-title">多人多机位同款</div>
+                    <div class="task-progress">邀请3位好友在同一地标拍摄</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">👫 团队徽章</div>
+                        <div class="reward-badge">💰 +1000</div>
+                    </div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn primary">邀请好友</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成就任务 -->
+        <div class="task-section">
+            <div class="section-header">
+                <div class="section-title">
+                    🏆 成就挑战
+                </div>
+                <div class="section-count">长期任务</div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">🛣️</div>
+                <div class="task-info">
+                    <div class="task-title">里程碑 - 跑酷达人</div>
+                    <div class="task-progress">累计里程达到 100 公里</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">🏃 跑酷大师</div>
+                        <div class="reward-badge">💰 +2000</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 47%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 5px;">47.5 km / 100 km</div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn disabled">进行中</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">❤️</div>
+                <div class="task-info">
+                    <div class="task-title">人气创作者</div>
+                    <div class="task-progress">创作内容累计获赞 5,000 次</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">⭐ 人气之星</div>
+                        <div class="reward-badge">💎 专属称号</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 58%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 5px;">2,890 / 5,000</div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn disabled">进行中</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">👥</div>
+                <div class="task-info">
+                    <div class="task-title">社交达人</div>
+                    <div class="task-progress">粉丝数达到 1,000 人</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">🌟 社交大使</div>
+                        <div class="reward-badge">💰 +5000</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 34%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 5px;">340 / 1,000</div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn disabled">进行中</button>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-icon">📅</div>
+                <div class="task-info">
+                    <div class="task-title">忠实伙伴</div>
+                    <div class="task-progress">设备使用天数达到 365 天</div>
+                    <div class="task-reward">
+                        <div class="reward-badge">💝 周年纪念</div>
+                        <div class="reward-badge">🎁 神秘奖励</div>
+                    </div>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: 27%;"></div>
+                    </div>
+                    <div class="task-progress" style="margin-top: 5px;">98 / 365 天</div>
+                </div>
+                <div class="task-action">
+                    <button class="task-btn disabled">进行中</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="feed.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">首页</div>
+        </a>
+        <a href="activities.html" class="nav-item">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-label">活动</div>
+        </a>
+        <a href="tasks.html" class="nav-item active">
+            <div class="nav-icon">📋</div>
+            <div class="nav-label">任务</div>
+        </a>
+        <a href="achievements.html" class="nav-item">
+            <div class="nav-icon">🏆</div>
+            <div class="nav-label">成就</div>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">我的</div>
+        </a>
+    </div>
+
+    <script>
+        // 任务按钮交互
+        document.querySelectorAll('.task-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.classList.contains('claim')) {
+                    this.textContent = '已领取';
+                    this.classList.remove('claim');
+                    this.classList.add('completed');
+
+                    // 更新积分显示
+                    const pointsDisplay = document.querySelector('.points-display');
+                    const currentPoints = parseInt(pointsDisplay.textContent.match(/\d+/)[0]);
+                    pointsDisplay.innerHTML = `💰 ${currentPoints + 30} 积分`;
+
+                    // 显示奖励提示
+                    alert('🎉 恭喜获得 +30 积分！');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

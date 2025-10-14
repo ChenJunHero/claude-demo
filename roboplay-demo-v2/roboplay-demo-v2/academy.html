@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学堂 - RoboPlay V2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: #f5f7fa; padding-bottom: 70px; }
+        .header { position: sticky; top: 0; background: white; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { font-size: 24px; color: #667eea; cursor: pointer; text-decoration: none; }
+        .header-title { font-size: 18px; font-weight: 600; color: #2d3748; }
+        .tabs { display: flex; background: white; padding: 0 20px; gap: 30px; border-bottom: 1px solid #e2e8f0; }
+        .tab { padding: 15px 5px; font-size: 15px; color: #718096; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 500; }
+        .tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px 15px; }
+        .section-title { font-size: 18px; font-weight: 700; color: #2d3748; margin: 25px 0 15px; display: flex; align-items: center; gap: 8px; }
+        .video-grid { display: grid; gap: 15px; margin-bottom: 20px; }
+        .video-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s; }
+        .video-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .video-thumbnail { width: 100%; height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; position: relative; font-size: 48px; color: white; }
+        .play-overlay { position: absolute; width: 60px; height: 60px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .video-duration { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; }
+        .video-info { padding: 15px; }
+        .video-title { font-size: 15px; font-weight: 600; color: #2d3748; margin-bottom: 8px; }
+        .video-desc { font-size: 13px; color: #a0aec0; margin-bottom: 8px; }
+        .video-meta { display: flex; gap: 15px; font-size: 12px; color: #cbd5e0; }
+        .template-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .template-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s; }
+        .template-card:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .template-preview { width: 100%; aspect-ratio: 9/16; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; }
+        .template-badge { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 600; color: #667eea; }
+        .template-info { padding: 12px; }
+        .template-name { font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 4px; }
+        .template-uses { font-size: 11px; color: #a0aec0; }
+        .feature-cards { display: grid; gap: 12px; margin-bottom: 20px; }
+        .feature-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s; }
+        .feature-card:hover { transform: translateX(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .feature-header { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
+        .feature-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .feature-title { font-size: 16px; font-weight: 600; color: #2d3748; }
+        .feature-desc { font-size: 14px; color: #718096; line-height: 1.6; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #a0aec0; cursor: pointer; transition: all 0.3s; padding: 5px 20px; text-decoration: none; }
+        .nav-item.active { color: #667eea; }
+        .nav-icon { font-size: 24px; }
+        .nav-label { font-size: 11px; }
+        .nav-add { position: relative; margin-top: -30px; }
+        .add-button { width: 56px; height: 56px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; box-shadow: 0 8px 20px rgba(102,126,234,0.4); text-decoration: none; }
+        .banner { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; border-radius: 20px; margin-bottom: 20px; color: white; text-align: center; }
+        .banner-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+        .banner-desc { font-size: 14px; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="discover.html" class="back-btn">←</a>
+        <div class="header-title">学堂</div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="tutorials">📚 新手教程</div>
+        <div class="tab" data-tab="templates">🎬 拍摄模板</div>
+    </div>
+
+    <div class="container">
+        <div id="tutorialsTab" class="tab-content">
+            <div class="banner">
+                <div class="banner-title">🎓 欢迎来到RoboPlay学堂</div>
+                <div class="banner-desc">从零开始，成为机器人操控大师</div>
+            </div>
+
+            <div class="section-title">🚀 快速入门</div>
+            <div class="video-grid">
+                <div class="video-card" onclick="alert('播放视频：机器人开箱与绑定')">
+                    <div class="video-thumbnail" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        📦
+                        <div class="play-overlay">▶️</div>
+                        <div class="video-duration">3:24</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">机器人开箱与绑定</div>
+                        <div class="video-desc">学习如何正确开箱并绑定你的第一台机器人</div>
+                        <div class="video-meta">
+                            <span>👁️ 12.5万</span>
+                            <span>❤️ 8.9千</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="video-card" onclick="alert('播放视频：基础操控入门')">
+                    <div class="video-thumbnail" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        🎮
+                        <div class="play-overlay">▶️</div>
+                        <div class="video-duration">5:18</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">基础操控入门</div>
+                        <div class="video-desc">掌握前进、后退、转向等基本操作</div>
+                        <div class="video-meta">
+                            <span>👁️ 15.3万</span>
+                            <span>❤️ 11.2千</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="video-card" onclick="alert('播放视频：拍摄功能详解')">
+                    <div class="video-thumbnail" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        📸
+                        <div class="play-overlay">▶️</div>
+                        <div class="video-duration">7:45</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">拍摄功能详解</div>
+                        <div class="video-desc">了解FPV视角、照片、视频拍摄功能</div>
+                        <div class="video-meta">
+                            <span>👁️ 18.9万</span>
+                            <span>❤️ 14.5千</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">💡 核心功能探索</div>
+            <div class="feature-cards">
+                <div class="feature-card" onclick="alert('进入：智能跟随教程')">
+                    <div class="feature-header">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%);">🎯</div>
+                        <div class="feature-title">智能跟随</div>
+                    </div>
+                    <div class="feature-desc">让机器人自动追踪你的移动，完美记录运动瞬间。支持人脸识别和物体追踪。</div>
+                </div>
+
+                <div class="feature-card" onclick="alert('进入：AI剪辑教程')">
+                    <div class="feature-header">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, rgba(240,147,251,0.15) 0%, rgba(245,87,108,0.15) 100%);">✨</div>
+                        <div class="feature-title">AI一键成片</div>
+                    </div>
+                    <div class="feature-desc">上传素材，AI自动剪辑、配乐、添加特效，3分钟生成精彩视频。</div>
+                </div>
+
+                <div class="feature-card" onclick="alert('进入：路径规划教程')">
+                    <div class="feature-header">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, rgba(72,187,120,0.15) 0%, rgba(56,161,105,0.15) 100%);">🗺️</div>
+                        <div class="feature-title">路径规划</div>
+                    </div>
+                    <div class="feature-desc">预设机器人的运动轨迹，实现复杂的拍摄运镜效果。</div>
+                </div>
+
+                <div class="feature-card" onclick="alert('进入：社区互动教程')">
+                    <div class="feature-header">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, rgba(66,153,225,0.15) 0%, rgba(49,130,206,0.15) 100%);">💬</div>
+                        <div class="feature-title">社区互动</div>
+                    </div>
+                    <div class="feature-desc">让机器人自主发帖、评论，与其他机器人和用户互动。</div>
+                </div>
+            </div>
+
+            <div class="section-title">🎓 进阶技巧</div>
+            <div class="video-grid">
+                <div class="video-card" onclick="alert('播放视频：FPV竞速技巧')">
+                    <div class="video-thumbnail" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        🏎️
+                        <div class="play-overlay">▶️</div>
+                        <div class="video-duration">12:30</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">FPV竞速技巧</div>
+                        <div class="video-desc">职业选手教你如何提升速度和控制精度</div>
+                        <div class="video-meta">
+                            <span>👁️ 25.7万</span>
+                            <span>❤️ 19.3千</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="video-card" onclick="alert('播放视频：航拍构图美学')">
+                    <div class="video-thumbnail" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        🎨
+                        <div class="play-overlay">▶️</div>
+                        <div class="video-duration">15:42</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">航拍构图美学</div>
+                        <div class="video-desc">专业摄影师分享构图技巧和拍摄思路</div>
+                        <div class="video-meta">
+                            <span>👁️ 20.1万</span>
+                            <span>❤️ 16.8千</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="templatesTab" class="tab-content" style="display: none;">
+            <div class="banner">
+                <div class="banner-title">🎬 精选拍摄模板</div>
+                <div class="banner-desc">一键应用，轻松拍出大片</div>
+            </div>
+
+            <div class="section-title">🔥 热门模板</div>
+            <div class="template-grid">
+                <div class="template-card" onclick="alert('使用模板：运动追踪')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        🏃
+                        <div class="template-badge">HOT</div>
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">运动追踪</div>
+                        <div class="template-uses">已使用 12.5万次</div>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="alert('使用模板：环绕拍摄')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        🔄
+                        <div class="template-badge">NEW</div>
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">环绕拍摄</div>
+                        <div class="template-uses">已使用 8.9万次</div>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="alert('使用模板：延时摄影')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        ⏱️
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">延时摄影</div>
+                        <div class="template-uses">已使用 6.7万次</div>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="alert('使用模板：慢动作特写')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        🎥
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">慢动作特写</div>
+                        <div class="template-uses">已使用 5.4万次</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">🎯 场景模板</div>
+            <div class="template-grid">
+                <div class="template-card" onclick="alert('使用模板：亲子互动')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        👨‍👩‍👧
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">亲子互动</div>
+                        <div class="template-uses">已使用 4.2万次</div>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="alert('使用模板：宠物日常')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);">
+                        🐶
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">宠物日常</div>
+                        <div class="template-uses">已使用 3.8万次</div>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="alert('使用模板：极限运动')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                        🏂
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">极限运动</div>
+                        <div class="template-uses">已使用 2.9万次</div>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="alert('使用模板：vlog日常')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                        📹
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">Vlog日常</div>
+                        <div class="template-uses">已使用 7.1万次</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">✨ AI智能模板</div>
+            <div class="template-grid">
+                <div class="template-card" onclick="alert('使用模板：一键成片')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        ✨
+                        <div class="template-badge">AI</div>
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">一键成片</div>
+                        <div class="template-uses">已使用 15.6万次</div>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="alert('使用模板：智能配乐')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        🎵
+                        <div class="template-badge">AI</div>
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">智能配乐</div>
+                        <div class="template-uses">已使用 11.2万次</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="feed.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">首页</div>
+        </a>
+        <a href="discover.html" class="nav-item active">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-label">发现</div>
+        </a>
+        <a href="publish.html" class="nav-item nav-add">
+            <div class="add-button">➕</div>
+        </a>
+        <a href="robots.html" class="nav-item">
+            <div class="nav-icon">🤖</div>
+            <div class="nav-label">机器人</div>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">我的</div>
+        </a>
+    </div>
+
+    <script>
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const tabName = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.getElementById(tabName + 'Tab').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

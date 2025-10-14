@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成就殿堂 - RoboPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            padding-bottom: 70px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .level-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .level-avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        .level-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 28px;
+            height: 28px;
+            background: #fbbf24;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            border: 2px solid white;
+        }
+
+        .level-info {
+            flex: 1;
+        }
+
+        .level-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .level-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .level-text {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        /* Tab切换 */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #718096;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* 徽章网格 */
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .badge-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            animation: fadeIn 0.4s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .badge-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge-item.locked {
+            opacity: 0.5;
+        }
+
+        .badge-item.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 14px;
+        }
+
+        .badge-item.rare {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .badge-item.legendary {
+            background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(252, 203, 144, 0.4);
+        }
+
+        .badge-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .badge-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .badge-desc {
+            font-size: 11px;
+            color: #718096;
+            line-height: 1.3;
+        }
+
+        .badge-item.rare .badge-desc,
+        .badge-item.legendary .badge-desc {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .badge-date {
+            font-size: 10px;
+            color: #a0aec0;
+            margin-top: 8px;
+        }
+
+        .badge-item.rare .badge-date,
+        .badge-item.legendary .badge-date {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 分类标题 */
+        .category-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 25px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px 20px;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+        }
+
+        /* 排行榜样式 */
+        .leaderboard-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 10px;
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+
+        .rank-2 {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            color: white;
+        }
+
+        .rank-3 {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+        }
+
+        .rank-other {
+            background: #f7fafc;
+            color: #718096;
+        }
+
+        .rank-user {
+            flex: 1;
+        }
+
+        .rank-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .rank-stats {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .rank-score {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">🏆 成就殿堂</div>
+        <div class="level-card">
+            <div class="level-avatar">
+                🤖
+                <div class="level-badge">⭐</div>
+            </div>
+            <div class="level-info">
+                <div class="level-title">Lv.12 钻石玩家</div>
+                <div class="level-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%;"></div>
+                    </div>
+                    <span>65%</span>
+                </div>
+                <div class="level-text">距离Lv.13还需 3,500 经验值</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🏅</div>
+                <div class="stat-value">28</div>
+                <div class="stat-label">已获得徽章</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value">64%</div>
+                <div class="stat-label">完成度</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value">12</div>
+                <div class="stat-label">稀有徽章</div>
+            </div>
+        </div>
+
+        <!-- Tab切换 -->
+        <div class="tabs">
+            <div class="tab active">我的徽章</div>
+            <div class="tab">徽章图鉴</div>
+            <div class="tab">排行榜</div>
+        </div>
+
+        <!-- 徽章内容 -->
+        <div class="badges-content">
+
+            <!-- 等级徽章 -->
+            <div class="category-title">⭐ 等级徽章</div>
+            <div class="badge-grid">
+                <div class="badge-item">
+                    <div class="badge-icon">🥉</div>
+                    <div class="badge-name">青铜玩家</div>
+                    <div class="badge-desc">达到Lv.5</div>
+                    <div class="badge-date">2024.01.15</div>
+                </div>
+                <div class="badge-item">
+                    <div class="badge-icon">🥈</div>
+                    <div class="badge-name">白银玩家</div>
+                    <div class="badge-desc">达到Lv.10</div>
+                    <div class="badge-date">2024.03.20</div>
+                </div>
+                <div class="badge-item">
+                    <div class="badge-icon">💎</div>
+                    <div class="badge-name">钻石玩家</div>
+                    <div class="badge-desc">达到Lv.12</div>
+                    <div class="badge-date">刚刚获得</div>
+                </div>
+                <div class="badge-item locked">
+                    <div class="badge-icon">👑</div>
+                    <div class="badge-name">王者玩家</div>
+                    <div class="badge-desc">达到Lv.20</div>
+                </div>
+            </div>
+
+            <!-- 活动徽章 -->
+            <div class="category-title">🎯 活动徽章</div>
+            <div class="badge-grid">
+                <div class="badge-item rare">
+                    <div class="badge-icon">🏁</div>
+                    <div class="badge-name">FPV冠军</div>
+                    <div class="badge-desc">竞速大赛第一名</div>
+                    <div class="badge-date">2024.04.01</div>
+                </div>
+                <div class="badge-item">
+                    <div class="badge-icon">📸</div>
+                    <div class="badge-name">摄影大师</div>
+                    <div class="badge-desc">跟拍大赛优胜</div>
+                    <div class="badge-date">2024.03.15</div>
+                </div>
+                <div class="badge-item legendary">
+                    <div class="badge-icon">🎂</div>
+                    <div class="badge-name">周年庆典</div>
+                    <div class="badge-desc">一周年限定</div>
+                    <div class="badge-date">2024.02.28</div>
+                </div>
+            </div>
+
+            <!-- 成就徽章 -->
+            <div class="category-title">🏆 成就徽章</div>
+            <div class="badge-grid">
+                <div class="badge-item">
+                    <div class="badge-icon">🛣️</div>
+                    <div class="badge-name">跑酷新手</div>
+                    <div class="badge-desc">累计10公里</div>
+                    <div class="badge-date">2024.01.20</div>
+                </div>
+                <div class="badge-item">
+                    <div class="badge-icon">🏃</div>
+                    <div class="badge-name">跑酷达人</div>
+                    <div class="badge-desc">累计50公里</div>
+                    <div class="badge-date">2024.03.10</div>
+                </div>
+                <div class="badge-item locked">
+                    <div class="badge-icon">⚡</div>
+                    <div class="badge-name">跑酷大师</div>
+                    <div class="badge-desc">累计100公里</div>
+                </div>
+                <div class="badge-item">
+                    <div class="badge-icon">❤️</div>
+                    <div class="badge-name">人气之星</div>
+                    <div class="badge-desc">获赞5000次</div>
+                    <div class="badge-date">2024.04.05</div>
+                </div>
+                <div class="badge-item">
+                    <div class="badge-icon">👥</div>
+                    <div class="badge-name">社交达人</div>
+                    <div class="badge-desc">1000位粉丝</div>
+                    <div class="badge-date">2024.03.28</div>
+                </div>
+                <div class="badge-item locked">
+                    <div class="badge-icon">🌟</div>
+                    <div class="badge-name">超级网红</div>
+                    <div class="badge-desc">10000位粉丝</div>
+                </div>
+            </div>
+
+            <!-- 限定徽章 -->
+            <div class="category-title">✨ 限定徽章</div>
+            <div class="badge-grid">
+                <div class="badge-item rare">
+                    <div class="badge-icon">🎄</div>
+                    <div class="badge-name">圣诞限定</div>
+                    <div class="badge-desc">2023圣诞活动</div>
+                    <div class="badge-date">2023.12.25</div>
+                </div>
+                <div class="badge-item rare">
+                    <div class="badge-icon">🧧</div>
+                    <div class="badge-name">新春福利</div>
+                    <div class="badge-desc">2024春节活动</div>
+                    <div class="badge-date">2024.02.10</div>
+                </div>
+                <div class="badge-item locked legendary">
+                    <div class="badge-icon">🎃</div>
+                    <div class="badge-name">万圣惊魂</div>
+                    <div class="badge-desc">2024万圣节</div>
+                </div>
+            </div>
+
+            <!-- 地标徽章 -->
+            <div class="category-title">📍 地标徽章</div>
+            <div class="badge-grid">
+                <div class="badge-item">
+                    <div class="badge-icon">🗼</div>
+                    <div class="badge-name">东方明珠</div>
+                    <div class="badge-desc">上海地标打卡</div>
+                    <div class="badge-date">2024.03.12</div>
+                </div>
+                <div class="badge-item">
+                    <div class="badge-icon">🏔️</div>
+                    <div class="badge-name">长城勇士</div>
+                    <div class="badge-desc">北京长城打卡</div>
+                    <div class="badge-date">2024.04.02</div>
+                </div>
+                <div class="badge-item locked">
+                    <div class="badge-icon">🏛️</div>
+                    <div class="badge-name">故宫探秘</div>
+                    <div class="badge-desc">故宫博物院</div>
+                </div>
+                <div class="badge-item locked">
+                    <div class="badge-icon">🌊</div>
+                    <div class="badge-name">海岛探险</div>
+                    <div class="badge-desc">三亚天涯海角</div>
+                </div>
+                <div class="badge-item locked">
+                    <div class="badge-icon">🎭</div>
+                    <div class="badge-name">文化使者</div>
+                    <div class="badge-desc">打卡10个地标</div>
+                </div>
+                <div class="badge-item locked legendary">
+                    <div class="badge-icon">🗺️</div>
+                    <div class="badge-name">环游中国</div>
+                    <div class="badge-desc">打卡50个地标</div>
+                </div>
+            </div>
+
+            <!-- 官方认证 -->
+            <div class="category-title">⭐ 官方认证</div>
+            <div class="badge-grid">
+                <div class="badge-item legendary">
+                    <div class="badge-icon">✍️</div>
+                    <div class="badge-name">优质创作者</div>
+                    <div class="badge-desc">官方认证</div>
+                    <div class="badge-date">2024.03.01</div>
+                </div>
+                <div class="badge-item locked legendary">
+                    <div class="badge-icon">👑</div>
+                    <div class="badge-name">核心用户</div>
+                    <div class="badge-desc">社区贡献者</div>
+                </div>
+                <div class="badge-item locked legendary">
+                    <div class="badge-icon">🎨</div>
+                    <div class="badge-name">创意大师</div>
+                    <div class="badge-desc">特殊贡献</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 排行榜内容（默认隐藏） -->
+        <div class="leaderboard-content" style="display: none;">
+            <div class="category-title">🏆 本周活跃榜</div>
+
+            <div class="leaderboard-item">
+                <div class="rank-badge rank-1">1</div>
+                <div class="rank-user">
+                    <div class="rank-name">机器人玩家小王</div>
+                    <div class="rank-stats">获得28个徽章 • Lv.15</div>
+                </div>
+                <div class="rank-score">9,850</div>
+            </div>
+
+            <div class="leaderboard-item">
+                <div class="rank-badge rank-2">2</div>
+                <div class="rank-user">
+                    <div class="rank-name">科技达人老李</div>
+                    <div class="rank-stats">获得25个徽章 • Lv.14</div>
+                </div>
+                <div class="rank-score">9,230</div>
+            </div>
+
+            <div class="leaderboard-item">
+                <div class="rank-badge rank-3">3</div>
+                <div class="rank-user">
+                    <div class="rank-name">创意设计师</div>
+                    <div class="rank-stats">获得22个徽章 • Lv.13</div>
+                </div>
+                <div class="rank-score">8,760</div>
+            </div>
+
+            <div class="leaderboard-item">
+                <div class="rank-badge rank-other">4</div>
+                <div class="rank-user">
+                    <div class="rank-name">机器人爱好者</div>
+                    <div class="rank-stats">获得20个徽章 • Lv.12</div>
+                </div>
+                <div class="rank-score">8,450</div>
+            </div>
+
+            <div class="leaderboard-item" style="border: 2px solid #667eea;">
+                <div class="rank-badge rank-other">5</div>
+                <div class="rank-user">
+                    <div class="rank-name">你（当前用户）</div>
+                    <div class="rank-stats">获得28个徽章 • Lv.12</div>
+                </div>
+                <div class="rank-score">8,280</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="feed.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">首页</div>
+        </a>
+        <a href="activities.html" class="nav-item">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-label">活动</div>
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <div class="nav-icon">📋</div>
+            <div class="nav-label">任务</div>
+        </a>
+        <a href="achievements.html" class="nav-item active">
+            <div class="nav-icon">🏆</div>
+            <div class="nav-label">成就</div>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">我的</div>
+        </a>
+    </div>
+
+    <script>
+        // Tab切换
+        const tabs = document.querySelectorAll('.tab');
+        const badgesContent = document.querySelector('.badges-content');
+        const leaderboardContent = document.querySelector('.leaderboard-content');
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                // 根据tab显示不同内容
+                if (index === 2) {
+                    badgesContent.style.display = 'none';
+                    leaderboardContent.style.display = 'block';
+                } else {
+                    badgesContent.style.display = 'block';
+                    leaderboardContent.style.display = 'none';
+                }
+            });
+        });
+
+        // 徽章点击效果
+        document.querySelectorAll('.badge-item').forEach(badge => {
+            badge.addEventListener('click', function() {
+                if (!this.classList.contains('locked')) {
+                    const name = this.querySelector('.badge-name').textContent;
+                    const desc = this.querySelector('.badge-desc').textContent;
+                    alert(`🏅 ${name}\n\n${desc}\n\n点击查看详情！`);
+                } else {
+                    const name = this.querySelector('.badge-name').textContent;
+                    const desc = this.querySelector('.badge-desc').textContent;
+                    alert(`🔒 ${name}\n\n${desc}\n\n继续努力解锁吧！`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
