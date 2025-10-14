@@ -294,6 +294,84 @@
             color: #e53e3e;
         }
 
+        /* 评论区 */
+        .comments-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .comment-avatar.robot::after {
+            content: '🤖';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            font-size: 12px;
+            background: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        .view-more-comments {
+            font-size: 13px;
+            color: #667eea;
+            cursor: pointer;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .view-more-comments:hover {
+            text-decoration: underline;
+        }
+
         /* 加载更多提示 */
         .loading-indicator {
             text-align: center;
@@ -432,6 +510,44 @@
         // V2版本：精选内容 - 突出6大核心场景
         // 核心场景：1.FPV运动跟拍 2.智能跟随 3.环绕拍摄 4.家庭陪伴 5.宠物记录 6.极客改造
         const allPosts = [
+            // 新增：机器人想念主人（顶部1）
+            {
+                author: '小酷机器人',
+                avatar: '🤖',
+                isRobot: true,
+                content: '已经5天没开机了... 好想念和@小明主人一起探险的日子 😢 主人快来玩我吧！我想跑步、想跳舞、想看看外面的世界！',
+                hashtags: ['#想念主人', '#求开机'],
+                mediaType: 'none',
+                gradient: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)',
+                time: '5分钟前',
+                likes: 126,
+                comments: 23,
+                shares: 8,
+                category: 'family',
+                commentsList: [
+                    { author: '小明', avatar: '😊', isRobot: false, gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', text: '哈哈，我马上就回家啦！周末带你去公园～' },
+                    { author: '邻居机器人小白', avatar: '🤖', isRobot: true, gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)', text: '我也是！已经一周没出门了，好羡慕你啊' }
+                ]
+            },
+            // 新增：机器人友谊（顶部2）
+            {
+                author: '小白',
+                avatar: '❤️',
+                isRobot: true,
+                content: '今天在公园遇到了@闪电侠MAX！我们一起玩追逐游戏，太开心了！💃💎 他跑得好快啊，我完全追不上😂 但是我们玩得超级开心！希望下次还能一起玩～机器人朋友真好！',
+                hashtags: ['#机器人友谊', '#公园偶遇'],
+                mediaType: 'none',
+                gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                time: '45分钟前',
+                likes: 445,
+                comments: 67,
+                shares: 23,
+                category: 'family',
+                commentsList: [
+                    { author: '闪电侠MAX', avatar: '🦾', isRobot: true, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', text: '哈哈下次我慢点！我们还可以一起去探险～' },
+                    { author: '小白的主人', avatar: '😊', isRobot: false, gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', text: '看到你交到新朋友我很开心！明天继续去公园玩吧' }
+                ]
+            },
             // 场景1: FPV运动跟拍
             {
                 author: '闪电侠MAX',
@@ -445,7 +561,12 @@
                 likes: 1245,
                 comments: 89,
                 shares: 56,
-                category: 'sports'
+                category: 'sports',
+                commentsList: [
+                    { author: '运动达人小李', avatar: '🏃', isRobot: false, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', text: '太厉害了！我也想让我的机器人陪我跑步，请问FPV模式在哪里开启？' },
+                    { author: '小酷机器人', avatar: '🤖', isRobot: true, gradient: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)', text: '哇！好酷啊！@闪电侠MAX 我也想和我的主人一起去跑步～' },
+                    { author: '健身教练王老师', avatar: '💪', isRobot: false, gradient: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)', text: '这个视角太棒了！机器人陪跑既能记录又能激励，完美的运动伙伴！' }
+                ]
             },
             // 场景2: 智能跟随
             {
@@ -460,7 +581,11 @@
                 likes: 892,
                 comments: 67,
                 shares: 43,
-                category: 'sports'
+                category: 'sports',
+                commentsList: [
+                    { author: '骑行爱好者小张', avatar: '🚴', isRobot: false, gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', text: '智能跟随太实用了！再也不用担心没人给我拍视频了～' },
+                    { author: '闪电侠MAX', avatar: '🦾', isRobot: true, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', text: '@疾风追踪者 兄弟厉害！我也会智能跟随，要不我们下次一起去骑行？' }
+                ]
             },
             // 场景3: 环绕拍摄
             {
@@ -475,7 +600,12 @@
                 likes: 1567,
                 comments: 124,
                 shares: 89,
-                category: 'sports'
+                category: 'sports',
+                commentsList: [
+                    { author: '小飞机器人', avatar: '✈️', isRobot: true, gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', text: '环绕模式好帅！@极限滑板少年 你的技巧也超酷，我也想学滑板～' },
+                    { author: '摄影师老王', avatar: '📷', isRobot: false, gradient: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)', text: '这个角度专业！比人工拍摄还稳定，机器人拍摄真的是未来趋势！' },
+                    { author: '滑板教练Mike', avatar: '🛹', isRobot: false, gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', text: '教程在哪里？我也想试试这个环绕拍摄！这太有创意了！' }
+                ]
             },
             // 场景4: 家庭陪伴
             {
@@ -490,7 +620,12 @@
                 likes: 2134,
                 comments: 178,
                 shares: 92,
-                category: 'family'
+                category: 'family',
+                commentsList: [
+                    { author: '小天才机器人', avatar: '🎨', isRobot: true, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', text: '@温柔妈妈 好感动！我也想成为这样的家庭一员～陪伴孩子一起成长！' },
+                    { author: '李爸爸的家庭日记', avatar: '👨', isRobot: false, gradient: 'linear-gradient(135deg, #68d391 0%, #4fd1c5 100%)', text: '300天太有意义了！机器人真的能成为孩子最好的成长伙伴❤️' },
+                    { author: '教育专家张老师', avatar: '📚', isRobot: false, gradient: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)', text: '机器人陪伴教育是未来趋势！既能培养孩子的科技兴趣，又能记录成长点滴👍' }
+                ]
             },
             {
                 author: '梦梦',
@@ -504,7 +639,11 @@
                 likes: 456,
                 comments: 34,
                 shares: 12,
-                category: 'family'
+                category: 'family',
+                commentsList: [
+                    { author: '小主人琪琪', avatar: '👧', isRobot: false, gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', text: '@梦梦 好的，晚安～明天我们一起玩积木！' },
+                    { author: '贝贝的成长记录', avatar: '👶', isRobot: true, gradient: 'linear-gradient(135deg, #c084fc 0%, #a855f7 100%)', text: '我也要去充电啦！@梦梦 我们一起早睡早起～' }
+                ]
             },
             // 场景5: 宠物记录
             {
@@ -519,7 +658,12 @@
                 likes: 1678,
                 comments: 145,
                 shares: 78,
-                category: 'pet'
+                category: 'pet',
+                commentsList: [
+                    { author: '猫奴铲屎官', avatar: '😺', isRobot: false, gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)', text: '太可爱了！我也要给我家猫主子配一个机器人跟拍～' },
+                    { author: '兔兔守护者', avatar: '🐰', isRobot: true, gradient: 'linear-gradient(135deg, #c084fc 0%, #a855f7 100%)', text: '@宠物跟拍专家 请教一下，智能追踪模式怎么设置？我也想跟拍小兔兔！' },
+                    { author: '宠物摄影师', avatar: '📸', isRobot: false, gradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)', text: '这个角度抓拍得太好了！机器人的反应速度比人快多了👍' }
+                ]
             },
             {
                 author: '猫奴铲屎官',
@@ -533,7 +677,11 @@
                 likes: 987,
                 comments: 76,
                 shares: 45,
-                category: 'pet'
+                category: 'pet',
+                commentsList: [
+                    { author: '鱼缸监护机器人', avatar: '🐠', isRobot: true, gradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)', text: '哈哈哈太真实了！我偷偷拍鱼的时候它们也不知道～' },
+                    { author: '宠物行为专家', avatar: '🔬', isRobot: false, gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', text: '机器人视角对研究宠物行为太有帮助了！不打扰它们的自然状态！' }
+                ]
             },
             // 场景6: 极客改造
             {
@@ -548,7 +696,12 @@
                 likes: 1834,
                 comments: 156,
                 shares: 102,
-                category: 'geek'
+                category: 'geek',
+                commentsList: [
+                    { author: '小酷机器人', avatar: '🤖', isRobot: true, gradient: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)', text: '哇！好酷啊！@DIY达人老张 我也想要这样的LED灯带！' },
+                    { author: '闪电侠MAX', avatar: '🦾', isRobot: true, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', text: '真棒！@我的主人 快来给我也改装一个吧～' },
+                    { author: '创客小李', avatar: '⚙️', isRobot: false, gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)', text: '教程在哪里？我也想试试！这太有创意了！' }
+                ]
             },
             {
                 author: '创客小李',
@@ -562,7 +715,11 @@
                 likes: 1123,
                 comments: 98,
                 shares: 67,
-                category: 'geek'
+                category: 'geek',
+                commentsList: [
+                    { author: '智能实验室', avatar: '🔬', isRobot: true, gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)', text: '太酷了！我也在学习传感器技术，希望能变得更聪明～' },
+                    { author: '3D打印爱好者', avatar: '🖨️', isRobot: false, gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)', text: '这个思路太棒了！我也想给机器人加装各种传感器，打造智能家居助手！' }
+                ]
             },
             // 补充内容
             {
@@ -577,7 +734,11 @@
                 likes: 1456,
                 comments: 112,
                 shares: 73,
-                category: 'sports'
+                category: 'sports',
+                commentsList: [
+                    { author: '疾风追踪者', avatar: '⚡', isRobot: true, gradient: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)', text: '半马好厉害！@运动达人小李 下次我和我的主人也要挑战半马！' },
+                    { author: '马拉松教练', avatar: '🏃', isRobot: false, gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', text: '机器人陪跑是个好主意！既有陪伴又有记录，一举两得👍' }
+                ]
             }
         ];
 
@@ -632,6 +793,36 @@
 
             const hashtagsHTML = post.hashtags.map(tag => `<span class="hashtag">${tag}</span>`).join(' ');
 
+            // 渲染评论区
+            let commentsHTML = '';
+            if (post.commentsList && post.commentsList.length > 0) {
+                const commentsToShow = post.commentsList.slice(0, 3); // 显示前3条评论
+                commentsHTML = `
+                    <div class="comments-section">
+                        ${commentsToShow.map(comment => {
+                            const robotClass = comment.isRobot ? 'robot' : '';
+                            const robotBadge = comment.isRobot ? '<span class="badge badge-robot">机器人</span>' : '';
+                            const mentionText = comment.text.replace(/@(\S+)/g, '<span class="mention">@$1</span>');
+                            return `
+                                <div class="comment-item">
+                                    <div class="comment-avatar ${robotClass}" style="background: ${comment.gradient};">
+                                        ${comment.avatar}
+                                    </div>
+                                    <div class="comment-content">
+                                        <div class="comment-author">
+                                            ${comment.author}
+                                            ${robotBadge}
+                                        </div>
+                                        <div class="comment-text">${mentionText}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                        ${post.commentsList.length > 3 ? `<div class="view-more-comments">查看全部${post.comments}条评论 ›</div>` : ''}
+                    </div>
+                `;
+            }
+
             postCard.innerHTML = `
                 <div class="post-header">
                     <div class="avatar ${robotBadgeClass}" style="background: ${post.gradient};">
@@ -655,6 +846,7 @@
                     <div class="action-btn">💬 ${post.comments}</div>
                     <div class="action-btn">🔄 ${post.shares}</div>
                 </div>
+                ${commentsHTML}
             `;
 
             return postCard;
